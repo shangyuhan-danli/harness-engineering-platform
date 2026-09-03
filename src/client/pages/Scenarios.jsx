@@ -209,9 +209,7 @@ function Scenarios() {
     <div className="scenarios-container">
       <div className="scenario-page-header">
         <div>
-          <p className="page-eyebrow">BUSINESS SCENARIO FIRST</p>
           <h1>业务场景设计台</h1>
-          <p>沿“场景分析 → Workflow 规划 → Command 入口 → Skill / Agent 集成”四步完成场景设计。</p>
         </div>
         {productId && (
           <button className="btn btn-primary" onClick={() => openScenarioModal()}>
@@ -302,7 +300,6 @@ function Scenarios() {
               <div className="workflow-section-header">
                 <div>
                   <h3>场景 Workflow</h3>
-                  <p>每个场景对应一个 Harness Workflow（发布后为一个 Extension），流程内按「环节 → 节点」编排。</p>
                 </div>
               </div>
 
@@ -415,7 +412,6 @@ function Scenarios() {
 
                         <div className="stage-section-title">
                           <span>环节与节点</span>
-                          <small>节点只能选用 Workflow 资产池中的 Agent / Skill</small>
                         </div>
                         {workflow.stages.length === 0 ? (
                           <button
