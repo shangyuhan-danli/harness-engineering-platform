@@ -15,11 +15,10 @@ const TYPE_LABELS = {
 
 // 详情内容示例（实际内容由流水线发布后回填，此处用于演示）
 const SAMPLE_CONTENT = {
-  Agent: { documentation: 'Agent 能力说明：接收输入文本，输出分类/识别结果。\n调用方式：HTTP API\n输入：{ text: string }\n输出：{ category: string }', capabilities: ['意图识别', '文本分类'] },
-  Skill: { documentation: 'Skill 能力说明：对输入进行分析并输出结构化结论。\n输入：{ input: string }\n输出：{ result: object }', capabilities: ['分析', '评审'] },
-  MCP: { documentation: 'MCP 服务：提供工具调用能力，遵循 MCP 协议。', capabilities: ['search', 'query'] },
-  Extension: { documentation: 'Extension：基于业务场景的命令扩展，发布后在 Agent 中通过 / 触发。', capabilities: ['/command'] },
-  Command: { documentation: 'Command：在 Agent 中通过 /xxx 触发的命令，参数与正文由流水线发布回填。', capabilities: ['/trigger'] }
+  Agent: { doc: 'Agent 能力说明：接收输入文本，输出分类/识别结果。\n调用：HTTP API\n输入：{ text: string }\n输出：{ category: string }' },
+  Skill: { skillMd: '# Skill 能力说明\n\n分析输入并输出结构化结论。\n\n## 输入\n{ input: string }\n\n## 输出\n{ result: object }', script: '#!/bin/bash\n# 运行 Skill\necho "analyzing..."\nnode ./analyze.js "$1"' },
+  Command: { doc: 'Command：在 Agent 中通过 /xxx 触发，参数与正文由流水线发布回填。\n\n## 参数\n{ input: string }\n\n## 正文\n由环节编排自动生成' },
+  Extension: {}
 }
 
 // Skill 质量报告（每版本一份，此处为固定示例数据）
@@ -55,6 +54,7 @@ function Assets() {
   const [detailAsset, setDetailAsset] = useState(null)
   const [detailVersion, setDetailVersion] = useState('')
   const [detailTab, setDetailTab] = useState('content')
+  const [detailWorkflow, setDetailWorkflow] = useState(null)
   const [publishAsset, setPublishAsset] = useState(null)
   const [publishOrg, setPublishOrg] = useState('')
   const [publishTab, setPublishTab] = useState('publish')
@@ -347,7 +347,7 @@ function Assets() {
         ) : (
           <div className="assets-grid">
             {assets.map(asset => (
-              <div key={asset._id} className="asset-card" onClick={() => { setDetailAsset(asset); setDetailVersion(asset.version); setDetailTab('content') }} style={{ cursor: 'pointer' }}>
+              <div key={asset._id} className="asset-card" onClick={async () => { setDetailAsset(asset); setDetailVersion(asset.version); setDetailTab('content'); setDetailWorkflow(null); if (asset.auto && asset.scenarioId) { try { const r = await axios.get(`/api/workflow?scenarioId=${asset.scenarioId}`, { headers: authHeaders() }); setDetailWorkflow(r.data[0] || null) } catch (e) { setDetailWorkflow(null) } } }} style={{ cursor: 'pointer' }}>
                 <div className="asset-header">
                   <h3>{asset.name}</h3>
                   <span className="badge badge-info">{asset.assetType}</span>
@@ -499,26 +499,46 @@ function Assets() {
             </div>
             {detailTab === 'content' ? (
               (() => {
-                const c = SAMPLE_CONTENT[detailAsset.assetType] || {}
-                const folder = ({ Agent: 'agents', Skill: 'skills', Command: 'commands', MCP: 'mcp', Extension: 'extension' })[detailAsset.assetType] || 'assets'
-                return (
-                  <div style={{ fontFamily: 'ui-monospace,monospace', fontSize: '12px', lineHeight: '1.9', background: 'var(--gray-50)', padding: '12px', borderRadius: '8px' }}>
-                    <div style={{ fontWeight: 700 }}>📁 {folder}/</div>
-                    <div style={{ marginLeft: '22px', borderLeft: '1px dashed var(--gray-300)', paddingLeft: '10px' }}>
-                      <div style={{ fontWeight: 700 }}>📁 {detailAsset.name}/</div>
-                      <div style={{ marginLeft: '22px' }}>
-                        <div style={{ color: 'var(--gray-600)' }}>📄 {detailAsset.name}.md</div>
-                        <pre style={{ margin: '4px 0 8px', padding: '8px 10px', background: '#1e293b', borderRadius: '6px', whiteSpace: 'pre-wrap', wordBreak: 'break-all', fontSize: '10.5px', lineHeight: '1.5', color: '#cbd5e1' }}>{c.documentation || '内容由流水线发布后回填'}</pre>
-                        {c.capabilities && (
-                          <div style={{ marginTop: '4px' }}>
-                            <strong style={{ fontSize: '0.85rem', fontFamily: 'inherit' }}>能力：</strong>
-                            {c.capabilities.map(cap => <span key={cap} className="badge badge-info" style={{ marginRight: '0.5rem' }}>{cap}</span>)}
-                          </div>
-                        )}
-                      </div>
-                    </div>
+                const at = detailAsset.assetType
+                const c = SAMPLE_CONTENT[at] || {}
+                const file = (name, content) => (
+                  <div key={name}>
+                    <div style={{ color: 'var(--gray-600)' }}>📄 {name}</div>
+                    <pre style={{ margin: '4px 0 8px', padding: '8px 10px', background: '#1e293b', borderRadius: '6px', whiteSpace: 'pre-wrap', wordBreak: 'break-all', fontSize: '10.5px', lineHeight: '1.5', color: '#cbd5e1' }}>{content}</pre>
                   </div>
                 )
+                const wrap = (children) => (
+                  <div style={{ fontFamily: 'ui-monospace,monospace', fontSize: '12px', lineHeight: '1.9', background: 'var(--gray-50)', padding: '12px', borderRadius: '8px' }}>{children}</div>
+                )
+                const sub = (children) => <div style={{ marginLeft: '22px', borderLeft: '1px dashed var(--gray-300)', paddingLeft: '10px' }}>{children}</div>
+                const empty = <span style={{ color: 'var(--gray-400)', fontStyle: 'italic' }}>（空）</span>
+
+                if (at === 'Skill') {
+                  return wrap(<><div style={{ fontWeight: 700 }}>📁 {detailAsset.name}/</div>{sub(<>{file('SKILL.md', c.skillMd)}{file('run.sh', c.script)}</>)}</>)
+                }
+                if (at === 'Extension') {
+                  const wf = detailWorkflow || {}
+                  const cmds = wf.commands || []
+                  const agents = (wf.assets || []).filter(a => a.type === 'Agent')
+                  const skills = (wf.assets || []).filter(a => a.type === 'Skill')
+                  return wrap(
+                    <>
+                      <div style={{ fontWeight: 700 }}>📁 {detailAsset.name}/</div>
+                      {sub(
+                        <>
+                          <div style={{ fontWeight: 700 }}>📁 commands/</div>
+                          <div style={{ marginLeft: '22px' }}>{cmds.length ? cmds.map(x => <div key={x.id}>{file(x.name + '.md', SAMPLE_CONTENT.Command.doc)}</div>) : empty}</div>
+                          <div style={{ fontWeight: 700 }}>📁 agents/</div>
+                          <div style={{ marginLeft: '22px' }}>{agents.length ? agents.map(x => <div key={x._id} style={{ color: 'var(--gray-600)' }}>📄 {x.assetId?.name}.md</div>) : empty}</div>
+                          <div style={{ fontWeight: 700 }}>📁 skills/</div>
+                          <div style={{ marginLeft: '22px' }}>{skills.length ? skills.map(x => <div key={x._id} style={{ color: 'var(--gray-600)' }}>📁 {x.assetId?.name}/</div>) : empty}</div>
+                        </>
+                      )}
+                    </>
+                  )
+                }
+                // Command / Agent / 其他：单文件
+                return wrap(file(detailAsset.name + '.md', c.doc || '内容由流水线发布后回填'))
               })()
             ) : (
               <>
