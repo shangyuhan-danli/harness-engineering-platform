@@ -162,7 +162,7 @@ async function seed() {
       tags: ['分类', '客服'],
       status: 'published',
       productId: UDM._id,
-      marketplace: { downloads: 128, rating: 4.5, reviews: 12, freeType: 'free' }
+      marketplace: { downloads: 128, rating: 4.5, calls: 320, reviews: 12, freeType: 'free' }
     },
     {
       name: '代码评审 Skill',
@@ -172,7 +172,7 @@ async function seed() {
       tags: ['代码评审'],
       status: 'published',
       productId: UDM._id,
-      marketplace: { downloads: 64, rating: 4.2, reviews: 8, freeType: 'premium' }
+      marketplace: { downloads: 64, rating: 4.2, calls: 180, reviews: 8, freeType: 'premium' }
     },
     {
       name: '内部知识库 MCP',

@@ -57,6 +57,7 @@ const assetSchema = new mongoose.Schema({
   marketplace: {
     downloads: { type: Number, default: 0 },
     rating: { type: Number, default: 0 },
+    calls: { type: Number, default: 0 },
     reviews: Number,
     featured: Boolean,
     freeType: {

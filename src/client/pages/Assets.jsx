@@ -356,10 +356,13 @@ function Assets() {
                 <div className="asset-meta">
                   <span>⭐ {(asset.marketplace?.rating || 0).toFixed(1)}</span>
                   <span>📥 {asset.marketplace?.downloads || 0}</span>
-                  <span>{asset.version ? 'v' + asset.version : '未开发'}</span>
-                  <span className={`badge ${asset.status === 'published' ? 'badge-success' : 'badge-warning'}`}>
-                    {asset.status === 'published' ? '已发布' : asset.status === 'deprecated' ? '已下架' : '草稿'}
-                  </span>
+                  <span>📞 {asset.marketplace?.calls || 0}</span>
+                  <span>{asset.version ? 'v' + asset.version : '无版本'}</span>
+                  {(() => {
+                    if (!asset.version) return <span className="badge badge-info">未开发</span>
+                    const pub = (asset.releaseNotes || []).some(r => (r.version || '') === (asset.version || ''))
+                    return pub ? <span className="badge badge-success">已发布</span> : <span className="badge badge-warning">待发布</span>
+                  })()}
                 </div>
                 <div className="asset-actions">
                   {asset.auto ? (
