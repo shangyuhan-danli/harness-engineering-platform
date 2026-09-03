@@ -482,16 +482,18 @@ function Scenarios() {
                   required
                 />
               </div>
-              <div className="form-group">
-                <label className="form-label">场景编码</label>
-                <input
-                  className="form-input"
-                  value={scenarioForm.code}
-                  onChange={event => setScenarioForm({ ...scenarioForm, code: event.target.value })}
-                  placeholder="例如：REQ-DEV（英文，作为 Extension 的 name）"
-                  required
-                />
-              </div>
+              {scenarioForm.parentId && (
+                <div className="form-group">
+                  <label className="form-label">场景编码 *</label>
+                  <input
+                    className="form-input"
+                    value={scenarioForm.code}
+                    onChange={event => setScenarioForm({ ...scenarioForm, code: event.target.value })}
+                    placeholder="例如：CODEC-DEV（英文，作为 Extension 的 name）"
+                    required
+                  />
+                </div>
+              )}
               <div className="form-group">
                 <label className="form-label">场景说明</label>
                 <textarea
