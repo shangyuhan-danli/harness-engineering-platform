@@ -31,6 +31,11 @@ const scenarioSchema = new mongoose.Schema({
     type: [String],
     default: ['Command 入口', '场景理解', '方案设计', '任务执行', '结果验证', 'Extension 构建']
   },
+  productId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Product',
+    default: null
+  },
   createdAt: {
     type: Date,
     default: Date.now

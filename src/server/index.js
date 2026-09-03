@@ -13,6 +13,10 @@ import specRoutes from './routes/spec.js';
 import testingRoutes from './routes/testing.js';
 import dashboardRoutes from './routes/dashboard.js';
 import scenarioRoutes from './routes/scenario.js';
+import commandRoutes from './routes/command.js';
+import departmentRoutes from './routes/department.js';
+import productRoutes from './routes/product.js';
+import extensionRoutes from './routes/extension.js';
 
 dotenv.config();
 
@@ -39,6 +43,10 @@ app.use('/api/spec', specRoutes);
 app.use('/api/testing', testingRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/scenario', scenarioRoutes);
+app.use('/api/command', commandRoutes);
+app.use('/api/department', departmentRoutes);
+app.use('/api/product', productRoutes);
+app.use('/api/extension', extensionRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {

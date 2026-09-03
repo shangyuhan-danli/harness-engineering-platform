@@ -1,10 +1,8 @@
-import { useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import './Sidebar.css'
 
 function Sidebar({ user, onLogout }) {
   const location = useLocation()
-  const [isCollapsed, setIsCollapsed] = useState(false)
 
   const menuItems = [
     { name: '业务场景设计', path: '/', icon: '🧭' },
@@ -16,15 +14,9 @@ function Sidebar({ user, onLogout }) {
   ]
 
   return (
-    <aside className={`sidebar ${isCollapsed ? 'collapsed' : ''}`}>
+    <header className="sidebar">
       <div className="sidebar-header">
         <h1 className="logo">🚀 Harness 工程平台</h1>
-        <button
-          className="toggle-btn"
-          onClick={() => setIsCollapsed(!isCollapsed)}
-        >
-          {isCollapsed ? '→' : '←'}
-        </button>
       </div>
 
       <nav className="sidebar-nav">
@@ -36,23 +28,23 @@ function Sidebar({ user, onLogout }) {
             title={item.name}
           >
             <span className="nav-icon">{item.icon}</span>
-            {!isCollapsed && <span className="nav-text">{item.name}</span>}
+            <span className="nav-text">{item.name}</span>
           </Link>
         ))}
       </nav>
 
       <div className="sidebar-footer">
-        {!isCollapsed && user && (
+        {user && (
           <div className="user-info">
             <p className="user-name">{user.username}</p>
             <p className="user-role">{user.role}</p>
           </div>
         )}
         <button className="btn btn-secondary" onClick={onLogout}>
-          {isCollapsed ? '🚪' : '退出登录'}
+          退出登录
         </button>
       </div>
-    </aside>
+    </header>
   )
 }
 

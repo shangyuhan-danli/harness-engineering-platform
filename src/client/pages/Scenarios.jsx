@@ -5,6 +5,7 @@ import { authHeaders } from '../utils/auth'
 import { getWorkflowProgress, stageTypeLabel } from '../utils/workflowProgress'
 import { cliInvocation } from '../utils/commandPreview'
 import WorkflowWizard from '../components/WorkflowWizard'
+import DeptTreeSelect from '../components/DeptTreeSelect'
 import './Scenarios.css'
 
 const initialScenarioForm = { name: '', code: '', description: '', parentId: '' }
@@ -19,10 +20,14 @@ function Scenarios() {
   const [scenarioModal, setScenarioModal] = useState(false)
   const [scenarioForm, setScenarioForm] = useState(initialScenarioForm)
   const [wizardState, setWizardState] = useState(null)
+  const [departments, setDepartments] = useState([])
+  const [selectedDeptId, setSelectedDeptId] = useState('')
+  const [products, setProducts] = useState([])
+  const [productId, setProductId] = useState('')
   const [searchParams] = useSearchParams()
 
   useEffect(() => {
-    loadWorkspace()
+    loadDepartments()
   }, [])
 
   useEffect(() => {
@@ -33,14 +38,65 @@ function Scenarios() {
     }
   }, [selectedId])
 
-  const loadWorkspace = async () => {
+  const loadDepartments = async () => {
+    setLoading(true)
+    try {
+      const response = await axios.get('/api/department', { headers: authHeaders() })
+      const depts = response.data
+      setDepartments(depts)
+      // 默认选中 UPCF 所在部门 → 加载产品 → 默认选 UPCF
+      const targetDept = depts.find(d => d.name === '分组融合数据开发部')
+      if (targetDept) {
+        setSelectedDeptId(targetDept._id)
+        const pres = await axios.get(`/api/product?departmentId=${targetDept._id}`, { headers: authHeaders() })
+        setProducts(pres.data)
+        const upcf = pres.data.find(p => p.name === 'UPCF')
+        if (upcf) {
+          setProductId(upcf._id)
+          await loadWorkspace(upcf._id)
+        }
+      }
+    } catch (err) {
+      console.error('Failed to load departments:', err)
+      setError('部门加载失败，请确认后端服务已启动')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const loadProducts = async (departmentId) => {
+    try {
+      const response = await axios.get(`/api/product?departmentId=${departmentId}`, { headers: authHeaders() })
+      setProducts(response.data)
+    } catch (err) {
+      console.error('Failed to load products:', err)
+      setProducts([])
+    }
+  }
+
+  const selectDept = (dept) => {
+    setSelectedDeptId(dept._id)
+    setProducts([])
+    setProductId('')
+    setScenarios([])
+    setSelectedId('')
+    loadProducts(dept._id)
+  }
+
+  const selectProduct = (pid) => {
+    setProductId(pid)
+    setSelectedId('')
+    if (pid) loadWorkspace(pid)
+  }
+
+  const loadWorkspace = async (pid) => {
+    if (!pid) return
     setLoading(true)
     setError('')
     try {
-      const response = await axios.get('/api/scenario', { headers: authHeaders() })
+      const response = await axios.get(`/api/scenario?productId=${pid}`, { headers: authHeaders() })
       const list = response.data
       setScenarios(list)
-      // 支持 /?scenario=<id> 深链（如从工作流列表页跳入）；id 无效时回退到第一个场景
       const deepLinked = searchParams.get('scenario')
       const fallback = list[0]?._id || ''
       const target = list.some(item => item._id === deepLinked) ? deepLinked : fallback
@@ -104,10 +160,11 @@ function Scenarios() {
     try {
       const response = await axios.post('/api/scenario', {
         ...scenarioForm,
-        parentId: scenarioForm.parentId || null
+        parentId: scenarioForm.parentId || null,
+        productId: productId || null
       }, { headers: authHeaders() })
       setScenarioModal(false)
-      await loadWorkspace()
+      await loadWorkspace(productId)
       setSelectedId(response.data._id)
     } catch (err) {
       console.error('Failed to create scenario:', err)
@@ -121,7 +178,7 @@ function Scenarios() {
 
   const closeWizard = async () => {
     setWizardState(null)
-    await Promise.all([loadScenario(selectedId), loadWorkspace()])
+    await Promise.all([loadScenario(selectedId), loadWorkspace(productId)])
   }
 
   const renderTree = (nodes) => nodes.map(node => (
@@ -156,9 +213,21 @@ function Scenarios() {
           <h1>业务场景设计台</h1>
           <p>沿“场景分析 → Workflow 规划 → Command 入口 → Skill / Agent 集成”四步完成场景设计。</p>
         </div>
-        <button className="btn btn-primary" onClick={() => openScenarioModal()}>
-          + 新建一级场景
-        </button>
+        {productId && (
+          <button className="btn btn-primary" onClick={() => openScenarioModal()}>
+            + 新建一级场景
+          </button>
+        )}
+      </div>
+
+      <div className="dept-product-selector">
+        <DeptTreeSelect departments={departments} selectedId={selectedDeptId} onSelect={selectDept} />
+        {products.length > 0 && (
+          <select className="form-input dept-select" value={productId} onChange={event => selectProduct(event.target.value)}>
+            <option value="">选产品…</option>
+            {products.map(p => <option key={p._id} value={p._id}>{p.name}</option>)}
+          </select>
+        )}
       </div>
 
       {error && <div className="error-banner">{error}</div>}
@@ -171,9 +240,13 @@ function Scenarios() {
               <small>{scenarios.length} 个场景节点</small>
             </div>
           </div>
-          {scenarioTree.length === 0 ? (
+          {!productId ? (
             <div className="scenario-tree-empty">
-              暂无业务场景，请先创建一级场景。
+              请先在上方选择部门与产品。
+            </div>
+          ) : scenarioTree.length === 0 ? (
+            <div className="scenario-tree-empty">
+              该产品下暂无业务场景，请先创建一级场景。
             </div>
           ) : renderTree(scenarioTree)}
         </aside>
@@ -193,19 +266,20 @@ function Scenarios() {
                 <div>
                   <div className="scenario-breadcrumb">
                     L{selectedScenario.level} 场景
-                    {selectedScenario.code && <span>{selectedScenario.code}</span>}
                   </div>
                   <h2>{selectedScenario.name}</h2>
                   <p>{selectedScenario.description || '请补充场景目标、边界与预期业务结果。'}</p>
                 </div>
                 <div className="scenario-summary-actions">
-                  <button
-                    className="btn btn-secondary"
-                    onClick={() => openScenarioModal(selectedScenario._id)}
-                  >
-                    + 新建下级场景
-                  </button>
-                  {(selectedScenario.workflows?.length || 0) === 0 && (
+                  {selectedScenario.level === 1 && (
+                    <button
+                      className="btn btn-secondary"
+                      onClick={() => openScenarioModal(selectedScenario._id)}
+                    >
+                      + 新建下级场景
+                    </button>
+                  )}
+                  {selectedScenario.level >= 2 && (selectedScenario.workflows?.length || 0) === 0 && (
                     <button
                       className="btn btn-primary"
                       onClick={() => openWizard(null, 0)}
@@ -216,6 +290,15 @@ function Scenarios() {
                 </div>
               </div>
 
+              {selectedScenario.level === 1 && (
+                <div className="empty-state workflow-empty">
+                  <div className="empty-icon">🗂️</div>
+                  <div className="empty-title">一级场景为业务分组节点</div>
+                  <div className="empty-hint">一级场景不支持直接定义 Workflow，请在左侧选择或新建下级场景进行流程设计（场景最多两级）。</div>
+                </div>
+              )}
+              {selectedScenario.level >= 2 && (
+                <>
               <div className="workflow-section-header">
                 <div>
                   <h3>场景 Workflow</h3>
@@ -377,6 +460,8 @@ function Scenarios() {
                   })}
                 </div>
               )}
+                </>
+              )}
             </>
           )}
         </section>
@@ -403,7 +488,8 @@ function Scenarios() {
                   className="form-input"
                   value={scenarioForm.code}
                   onChange={event => setScenarioForm({ ...scenarioForm, code: event.target.value })}
-                  placeholder="例如：REQ-DEV"
+                  placeholder="例如：REQ-DEV（英文，作为 Extension 的 name）"
+                  required
                 />
               </div>
               <div className="form-group">

@@ -575,3 +575,63 @@
   gap: 0.5rem;
   margin-left: auto;
 }
+
+.wizard-command-templates {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.wizard-command-template {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--gray-200);
+  border-radius: 0.5rem;
+  background: #fff;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 0.8rem;
+  color: var(--gray-700);
+}
+
+.wizard-command-template:hover {
+  border-color: var(--primary-color);
+  background: #f8fbff;
+  color: var(--primary-color);
+}
+
+.wizard-command-template code {
+  background: var(--gray-100);
+  padding: 0.15rem 0.5rem;
+  border-radius: 0.25rem;
+  color: var(--gray-800);
+  font-size: 0.78rem;
+}
+
+.wizard-command-template span {
+  color: var(--gray-500);
+}
+
+.wizard-command-desc {
+  flex: 1;
+  color: var(--gray-500);
+  font-size: 0.82rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.wizard-command-version {
+  color: var(--gray-400);
+  font-size: 0.75rem;
+  white-space: nowrap;
+}
+
+.wizard-command-pending {
+  color: var(--warning-color);
+  font-size: 0.75rem;
+  white-space: nowrap;
+}

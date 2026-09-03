@@ -1,6 +1,10 @@
 import express from 'express';
 import Workflow from '../models/Workflow.js';
+import Scenario from '../models/Scenario.js';
 import Asset from '../models/Asset.js';
+import Command from '../models/Command.js';
+import Department from '../models/Department.js';
+import Product from '../models/Product.js';
 import { v4 as uuidv4 } from 'uuid';
 
 const router = express.Router();
@@ -39,14 +43,41 @@ const validateCommandPayload = (body) => {
 };
 
 const populateWorkflow = (query) => query
-  .populate('scenarioId', 'name code level')
+  .populate({
+    path: 'scenarioId',
+    select: 'name code level productId parentId',
+    populate: { path: 'parentId', model: 'Scenario', select: 'name' }
+  })
   .populate('assets.assetId', 'name assetType status version description')
   .populate('stages.steps.assets.assetId', 'name assetType status version');
 
 // Get all workflows
 router.get('/', async (req, res) => {
   try {
-    const query = req.query.scenarioId ? { scenarioId: req.query.scenarioId } : {};
+    const query = {};
+    if (req.query.scenarioId) query.scenarioId = req.query.scenarioId;
+    if (req.query.productId) {
+      const scenarios = await Scenario.find({ productId: req.query.productId }).select('_id').lean();
+      query.scenarioId = { $in: scenarios.map(s => s._id) };
+    } else if (req.query.departmentId) {
+      // 递归收集该部门及所有子孙部门，再找其下产品 → 场景 → 工作流
+      const deptIds = [req.query.departmentId];
+      let stack = [req.query.departmentId];
+      while (stack.length) {
+        const children = await Department.find({ parentId: { $in: stack } }).select('_id').lean();
+        const childIds = children.map(c => c._id);
+        if (childIds.length) {
+          deptIds.push(...childIds);
+          stack = childIds;
+        } else {
+          stack = [];
+        }
+      }
+      const products = await Product.find({ departmentId: { $in: deptIds } }).select('_id').lean();
+      const productIds = products.map(p => p._id);
+      const scenarios = await Scenario.find({ productId: { $in: productIds } }).select('_id').lean();
+      query.scenarioId = { $in: scenarios.map(s => s._id) };
+    }
     const workflows = await populateWorkflow(Workflow.find(query)).sort({ createdAt: -1 });
     res.json(workflows);
   } catch (error) {
@@ -71,6 +102,13 @@ router.get('/:id', async (req, res) => {
 router.post('/', async (req, res) => {
   try {
     if (req.body.scenarioId) {
+      const scenario = await Scenario.findById(req.body.scenarioId);
+      if (!scenario) {
+        return res.status(400).json({ error: '所属业务场景不存在' });
+      }
+      if (scenario.level < 2) {
+        return res.status(400).json({ error: '一级场景为业务分组节点，不支持定义 Workflow，请在二级场景下设计' });
+      }
       const existing = await Workflow.findOne({ scenarioId: req.body.scenarioId });
       if (existing) {
         return res.status(409).json({
@@ -149,26 +187,35 @@ router.put('/:id/assets', async (req, res) => {
 });
 
 // Add a command entry to the workflow
+// Command 入口只能从清单选择（引用），不在系统直接写参数/正文（同源原则）
 router.post('/:id/commands', async (req, res) => {
   try {
     const workflow = await Workflow.findById(req.params.id);
     if (!workflow) {
       return res.status(404).json({ error: 'Workflow not found' });
     }
-    const validationError = validateCommandPayload(req.body);
-    if (validationError) {
-      return res.status(400).json({ error: validationError });
+    const { commandId } = req.body;
+    if (!commandId) {
+      return res.status(400).json({ error: '请从 Command 清单中选择一个命令' });
     }
-    if (workflow.commands.some(item => item.name === req.body.name)) {
-      return res.status(409).json({ error: 'Command name already exists in this workflow' });
+    const registry = await Command.findById(commandId).lean();
+    if (!registry) {
+      return res.status(400).json({ error: '所选 Command 不存在于清单' });
+    }
+    if (workflow.commands.some(item => item.commandId && item.commandId.toString() === commandId)) {
+      return res.status(409).json({ error: '该 Command 已添加到本 Workflow' });
     }
 
     const command = {
       id: uuidv4(),
-      name: req.body.name,
-      description: req.body.description,
-      parameters: req.body.parameters || {},
-      bodyOverride: req.body.bodyOverride || ''
+      commandId: registry._id,
+      name: registry.name,
+      description: registry.description || '',
+      parameters: registry.parameters || {},
+      bodyOverride: registry.bodyOverride || '',
+      version: registry.version || null,
+      owner: registry.owner || '',
+      dueDate: registry.dueDate || null
     };
     workflow.commands.push(command);
     workflow.updatedAt = new Date();
@@ -191,18 +238,19 @@ router.put('/:id/commands/:commandId', async (req, res) => {
     if (!command) {
       return res.status(404).json({ error: 'Command not found' });
     }
-    const validationError = validateCommandPayload({ ...command.toObject(), ...req.body });
-    if (validationError) {
-      return res.status(400).json({ error: validationError });
+    // 同步清单：从 Command 清单重新读取（流水线发布后回填的 parameters / bodyOverride）
+    if (command.commandId) {
+      const registry = await Command.findById(command.commandId).lean();
+      if (registry) {
+        command.name = registry.name;
+        command.description = registry.description || '';
+        command.parameters = registry.parameters || {};
+        command.bodyOverride = registry.bodyOverride || '';
+        command.version = registry.version || null;
+        command.owner = registry.owner || '';
+        command.dueDate = registry.dueDate || null;
+      }
     }
-    if (
-      req.body.name &&
-      req.body.name !== command.name &&
-      workflow.commands.some(item => item.name === req.body.name)
-    ) {
-      return res.status(409).json({ error: 'Command name already exists in this workflow' });
-    }
-    Object.assign(command, req.body);
     workflow.updatedAt = new Date();
     await workflow.save();
     res.json(command);

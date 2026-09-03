@@ -17,6 +17,12 @@ import Asset from '../src/server/models/Asset.js';
 import Spec from '../src/server/models/Spec.js';
 import TestingCase from '../src/server/models/TestingCase.js';
 import Scenario from '../src/server/models/Scenario.js';
+import Command from '../src/server/models/Command.js';
+import Department from '../src/server/models/Department.js';
+import Product from '../src/server/models/Product.js';
+import ExtensionRelease from '../src/server/models/ExtensionRelease.js';
+import bcrypt from 'bcryptjs';
+import '../src/server/routes/auth.js';
 
 dotenv.config();
 
@@ -32,15 +38,34 @@ async function seed() {
     Workflow.deleteMany({}),
     Asset.deleteMany({}),
     Spec.deleteMany({}),
-    TestingCase.deleteMany({})
+    TestingCase.deleteMany({}),
+    Command.deleteMany({}),
+    Department.deleteMany({}),
+    Product.deleteMany({}),
+    ExtensionRelease.deleteMany({})
   ]);
+  await mongoose.model('User').deleteMany({});
+
+  console.log('Inserting sample departments...');
+  const productLine = await Department.create({ name: '云核心网产品线', level: 1 });
+  const rdMgmt = await Department.create({ name: '云核心网研发管理部', parentId: productLine._id, level: 2 });
+  const grpCore = await Department.create({ name: '分组核心网产品部', parentId: rdMgmt._id, level: 3 });
+  const ctrlDept = await Department.create({ name: '分组控制开发部', parentId: grpCore._id, level: 4 });
+  const mobileDept = await Department.create({ name: '分组移动接入开发部', parentId: grpCore._id, level: 4 });
+  const dataDept = await Department.create({ name: '分组融合数据开发部', parentId: grpCore._id, level: 4 });
+
+  console.log('Inserting sample products...');
+  const UDM = await Product.create({ name: 'UDM', code: 'UDM', departmentId: ctrlDept._id });
+  const USCDB = await Product.create({ name: 'USCDB', code: 'USCDB', departmentId: mobileDept._id });
+  const UPCF = await Product.create({ name: 'UPCF', code: 'UPCF', departmentId: dataDept._id });
 
   console.log('Inserting sample business scenarios...');
   const requirementScenario = await Scenario.create({
     name: '需求开发',
     code: 'REQ-DEV',
     description: '从业务需求分析到研发交付的一级场景',
-    status: 'active'
+    status: 'active',
+    productId: UDM._id
   });
   const codecScenario = await Scenario.create({
     name: '编解码开发',
@@ -48,7 +73,8 @@ async function seed() {
     description: '设计并实现协议编解码能力',
     parentId: requirementScenario._id,
     level: 2,
-    status: 'active'
+    status: 'active',
+    productId: UDM._id
   });
   const reviewScenario = await Scenario.create({
     name: '代码评审',
@@ -56,8 +82,20 @@ async function seed() {
     description: '对研发交付物进行自动化代码评审',
     parentId: requirementScenario._id,
     level: 2,
-    status: 'active'
+    status: 'active',
+    productId: UDM._id
   });
+
+  console.log('Inserting sample command registry...');
+  const [codecGen, codecVal, prReview, deploy, analyze, summarize, testUnpub] = await Command.create([
+    { name: '/codec-generate', description: '根据协议定义生成编解码实现', parameters: { input: 'string', lang: 'string' }, bodyOverride: '', version: '1.0.0', owner: '张工', source: 'pipeline' },
+    { name: '/codec-validate', description: '校验编解码实现的协议兼容性', parameters: { input: 'string' }, bodyOverride: '', version: '1.0.0', owner: '张工', source: 'pipeline' },
+    { name: '/pr-review', description: '对指定 PR 进行代码评审并输出建议', parameters: { pr_url: 'string' }, bodyOverride: '', version: '1.0.0', owner: '李工', source: 'pipeline' },
+    { name: '/deploy', description: '发布产物到目标环境', parameters: {}, bodyOverride: '', version: null, owner: '王工', dueDate: new Date(Date.now() + 86400000 * 7), source: 'manual' },
+    { name: '/analyze', description: '分析输入并输出结构化结论', parameters: {}, bodyOverride: '', version: null, owner: '赵工', dueDate: new Date(Date.now() + 86400000 * 14), source: 'manual' },
+    { name: '/summarize', description: '对输入文本生成结构化摘要', parameters: { input: 'string' }, bodyOverride: '执行「摘要生成」作业流程。', version: '1.0.0', owner: '钱工', source: 'pipeline' },
+    { name: '/test-unpublished', description: '用于测试的未发布 Command', parameters: {}, bodyOverride: '', version: null, owner: '测试', dueDate: new Date(Date.now() + 86400000 * 3), source: 'manual' }
+  ]);
 
   console.log('Inserting sample workflows...');
   await Workflow.create([
@@ -87,6 +125,10 @@ async function seed() {
             { id: 'step-3-1', order: 0, name: '运行兼容性用例', description: '执行协议兼容性验证', assets: [] }
           ]
         }
+      ],
+      commands: [
+        { id: 'cmd-1-1', commandId: codecGen._id, name: codecGen.name, description: codecGen.description, parameters: codecGen.parameters, bodyOverride: codecGen.bodyOverride, developed: true, owner: codecGen.owner },
+        { id: 'cmd-1-2', commandId: codecVal._id, name: codecVal.name, description: codecVal.description, parameters: codecVal.parameters, bodyOverride: codecVal.bodyOverride, developed: true, owner: codecVal.owner }
       ]
     },
     {
@@ -103,6 +145,9 @@ async function seed() {
             { id: 'step-1-2', order: 1, name: '汇总评审建议', description: '整理并输出评审报告', assets: [] }
           ]
         }
+      ],
+      commands: [
+        { id: 'cmd-2-1', commandId: prReview._id, name: prReview.name, description: prReview.description, parameters: prReview.parameters, bodyOverride: prReview.bodyOverride, developed: true, owner: prReview.owner }
       ]
     }
   ]);
@@ -116,6 +161,7 @@ async function seed() {
       category: '客服',
       tags: ['分类', '客服'],
       status: 'published',
+      productId: UDM._id,
       marketplace: { downloads: 128, rating: 4.5, reviews: 12, freeType: 'free' }
     },
     {
@@ -125,6 +171,7 @@ async function seed() {
       category: '研发效能',
       tags: ['代码评审'],
       status: 'published',
+      productId: UDM._id,
       marketplace: { downloads: 64, rating: 4.2, reviews: 8, freeType: 'premium' }
     },
     {
@@ -133,15 +180,17 @@ async function seed() {
       assetType: 'MCP',
       category: '知识管理',
       tags: ['知识库'],
-      status: 'draft'
+      status: 'draft',
+      productId: UDM._id
     },
     {
-      name: '工单派单 Extension',
-      description: '将分类结果与工单系统对接，实现自动派单',
-      assetType: 'Extension',
-      category: '客服',
-      tags: ['派单'],
-      status: 'draft'
+      name: '测试Agent-未发布',
+      description: '用于测试发布流程的未发布 Agent',
+      assetType: 'Agent',
+      status: 'draft',
+      productId: UDM._id,
+      owner: '测试',
+      dueDate: new Date(Date.now() + 86400000 * 7)
     }
   ]);
 
@@ -179,6 +228,15 @@ async function seed() {
       ]
     }
   ]);
+
+  console.log('Inserting sample user...');
+  const User = mongoose.model('User');
+  await User.create({
+    username: 'moli',
+    email: 'moli@example.com',
+    password: await bcrypt.hash('moli123', 10),
+    role: 'developer'
+  });
 
   console.log('Seed data inserted successfully.');
   await mongoose.disconnect();

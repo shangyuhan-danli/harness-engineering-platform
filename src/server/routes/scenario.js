@@ -6,7 +6,8 @@ const router = express.Router();
 
 router.get('/', async (req, res) => {
   try {
-    const scenarios = await Scenario.find().sort({ level: 1, createdAt: 1 }).lean();
+    const query = req.query.productId ? { productId: req.query.productId } : {};
+    const scenarios = await Scenario.find(query).sort({ level: 1, createdAt: 1 }).lean();
     const workflowCounts = await Workflow.aggregate([
       { $match: { scenarioId: { $ne: null } } },
       { $group: { _id: '$scenarioId', count: { $sum: 1 } } }
@@ -51,6 +52,9 @@ router.post('/', async (req, res) => {
       const parent = await Scenario.findById(req.body.parentId);
       if (!parent) {
         return res.status(400).json({ error: 'Parent scenario not found' });
+      }
+      if (parent.level >= 2) {
+        return res.status(400).json({ error: '场景最多两级，不支持在二级场景下继续创建下级场景' });
       }
       parentId = parent._id;
       level = parent.level + 1;

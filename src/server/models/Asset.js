@@ -23,6 +23,18 @@ const assetSchema = new mongoose.Schema({
     enum: ['draft', 'published', 'deprecated'],
     default: 'draft'
   },
+  owner: String,
+  dueDate: Date,
+  productId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Product',
+    default: null
+  },
+  departmentId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Department',
+    default: null
+  },
   content: {
     code: String,
     config: mongoose.Schema.Types.Mixed,
@@ -58,7 +70,8 @@ const assetSchema = new mongoose.Schema({
       version: String,
       date: Date,
       notes: String,
-      breaking: Boolean
+      breaking: Boolean,
+      organization: String
     }
   ],
   creator: {

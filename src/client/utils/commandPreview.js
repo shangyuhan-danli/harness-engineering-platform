@@ -27,6 +27,10 @@ export function compileCommandBody(workflow, command) {
   if (command.bodyOverride) {
     return command.bodyOverride
   }
+  // 未开发的 Command（无版本号）：仅占位名字，参数与正文待流水线发布回填
+  if (!command.version) {
+    return '（该 Command 尚未由流水线发布，待责任人完成后由流水线自动回填参数与正文。）'
+  }
 
   const stages = [...(workflow?.stages || [])].sort((a, b) => a.order - b.order)
   const lines = [

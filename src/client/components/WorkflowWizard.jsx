@@ -7,6 +7,7 @@ import {
   normalizeCommandName,
   cliInvocation,
   compileCommandBody,
+  buildCommandPreview,
   findUnboundNodes
 } from '../utils/commandPreview'
 import './WorkflowWizard.css'
@@ -23,7 +24,17 @@ const emptyCommandDraft = {
   bodyOverride: '',
   customizeBody: false
 }
-const emptyQuickAsset = { name: '', assetType: 'Agent', description: '' }
+// 预置 Command 模板库：设计 Command 入口时可从中选择现成模板，
+// 选中后自动填充表单，仍可在表单中修改后保存，不强制现场逐项创建。
+const COMMAND_TEMPLATES = [
+  { name: '/generate', description: '根据输入生成代码或产物', parameters: { input: 'string' } },
+  { name: '/review', description: '对指定对象进行评审并输出建议', parameters: { target: 'string' } },
+  { name: '/validate', description: '校验输入是否符合规则或契约', parameters: { input: 'string' } },
+  { name: '/analyze', description: '分析输入并输出结构化结论', parameters: { input: 'string' } },
+  { name: '/transform', description: '按指定格式转换输入', parameters: { input: 'string', format: 'string' } },
+  { name: '/summarize', description: '对输入生成摘要', parameters: { input: 'string' } }
+]
+const emptyQuickAsset = { name: '', assetType: 'Agent', owner: '', dueDate: '' }
 
 function WorkflowWizard({ scenario, workflow, initialStep = 0, onClose }) {
   const [step, setStep] = useState(initialStep)
@@ -43,6 +54,10 @@ function WorkflowWizard({ scenario, workflow, initialStep = 0, onClose }) {
   const [stageDraft, setStageDraft] = useState(null)
   const [stepDraft, setStepDraft] = useState(null)
   const [commandDraft, setCommandDraft] = useState(null)
+  // Command 清单（从 /api/command 加载，下拉选择用）
+  const [commandRegistry, setCommandRegistry] = useState([])
+  // 新定义 Command 表单（仅 name + 责任人 + 完成时间，不写参数/正文）
+  const [newCommandForm, setNewCommandForm] = useState(null)
   // 场景的环节类型调色板（场景内自定义），新增/删除会持久化到 Scenario.stageTypes
   const [stageTypes, setStageTypes] = useState(scenario?.stageTypes?.length ? scenario.stageTypes : DEFAULT_STAGE_TYPES)
   const [newStageType, setNewStageType] = useState('')
@@ -68,6 +83,7 @@ function WorkflowWizard({ scenario, workflow, initialStep = 0, onClose }) {
 
   useEffect(() => {
     loadAssets()
+    loadCommandRegistry()
   }, [])
 
   const loadAssets = async () => {
@@ -77,6 +93,15 @@ function WorkflowWizard({ scenario, workflow, initialStep = 0, onClose }) {
     } catch (err) {
       console.error('Failed to load assets:', err)
       setError('资产列表加载失败，请确认后端服务已启动')
+    }
+  }
+
+  const loadCommandRegistry = async () => {
+    try {
+      const response = await axios.get('/api/command', { headers: authHeaders() })
+      setCommandRegistry(response.data)
+    } catch (err) {
+      console.error('Failed to load command registry:', err)
     }
   }
 
@@ -382,35 +407,34 @@ function WorkflowWizard({ scenario, workflow, initialStep = 0, onClose }) {
     return parameters
   }
 
-  const saveCommand = async (event) => {
-    event.preventDefault()
-    let parameters
-    try {
-      parameters = parseCommandParameters(commandDraft.parameters)
-    } catch (err) {
-      setError(err.message)
-      return
-    }
-    const name = normalizeCommandName(commandDraft.name)
-    if (!COMMAND_NAME_PATTERN.test(name)) {
-      setError('Command 名称必须形如 /xxx，仅含小写字母、数字和连字符')
-      return
-    }
-    const payload = {
-      name,
-      description: commandDraft.description,
-      parameters,
-      bodyOverride: commandDraft.customizeBody ? commandDraft.bodyOverride : ''
-    }
+  // 从 Command 清单选择一个加入本 Workflow（引用，不在系统直接写参数/正文）
+  const addCommand = async (commandId) => {
+    if (!commandId) return
     const ok = await runStep(async () => {
-      if (commandDraft.id) {
-        await axios.put(`/api/workflow/${workflowId}/commands/${commandDraft.id}`, payload, { headers: authHeaders() })
-      } else {
-        await axios.post(`/api/workflow/${workflowId}/commands`, payload, { headers: authHeaders() })
-      }
+      await axios.post(`/api/workflow/${workflowId}/commands`, { commandId }, { headers: authHeaders() })
       await refreshWorkflow()
     })
-    if (ok) setCommandDraft(null)
+    if (ok) setNewCommandForm(null)
+  }
+
+  // 新定义一个 Command：仅 name + 责任人 + 完成时间，加入清单（未开发占位）并引用到本 Workflow
+  const createNewCommand = async (event) => {
+    event.preventDefault()
+    if (!newCommandForm?.name?.trim()) {
+      setError('请填写 Command 名称')
+      return
+    }
+    const ok = await runStep(async () => {
+      const response = await axios.post('/api/command', {
+        name: newCommandForm.name,
+        owner: newCommandForm.owner,
+        dueDate: newCommandForm.dueDate || null
+      }, { headers: authHeaders() })
+      await loadCommandRegistry()
+      await axios.post(`/api/workflow/${workflowId}/commands`, { commandId: response.data._id }, { headers: authHeaders() })
+      await refreshWorkflow()
+    })
+    if (ok) setNewCommandForm(null)
   }
 
   const deleteCommand = async (commandId) => {
@@ -446,7 +470,7 @@ function WorkflowWizard({ scenario, workflow, initialStep = 0, onClose }) {
   const createQuickAsset = async (event) => {
     event.preventDefault()
     const ok = await runStep(async () => {
-      const response = await axios.post('/api/asset', quickAsset, { headers: authHeaders() })
+      const response = await axios.post('/api/asset', { ...quickAsset, productId: scenario?.productId || null }, { headers: authHeaders() })
       await loadAssets()
       setPoolIds(current => [...current, response.data._id])
     })
@@ -536,12 +560,13 @@ function WorkflowWizard({ scenario, workflow, initialStep = 0, onClose }) {
                 />
               </div>
               <div className="form-group">
-                <label className="form-label">场景编码</label>
+                <label className="form-label">场景编码 *</label>
                 <input
                   className="form-input"
                   value={scenarioForm.code}
                   onChange={event => setScenarioForm({ ...scenarioForm, code: event.target.value })}
-                  placeholder="例如：REQ-DEV"
+                  placeholder="例如：REQ-DEV（英文，作为 Extension 的 name）"
+                  required
                 />
               </div>
               <div className="form-group">
@@ -754,7 +779,7 @@ function WorkflowWizard({ scenario, workflow, initialStep = 0, onClose }) {
           {step === 2 && (
             <div className="wizard-step-panel">
               <p className="wizard-step-hint">
-                定义发布后在 Claude Code TUI 中通过 /xxx 触发的命令：命令名、位置参数契约与指令正文。
+                Command 在 Agent 中通过 / 触发，不指明工具类型；从清单选择或新定义，参数与正文由流水线发布后回填。
               </p>
               {unboundNodes.length > 0 && (
                 <div className="wizard-gap-warning">
@@ -762,102 +787,89 @@ function WorkflowWizard({ scenario, workflow, initialStep = 0, onClose }) {
                   未绑定的节点不会带资产信息进入 Command 正文，可在第 4 步完成绑定。
                 </div>
               )}
-              {(wf?.commands || []).length === 0 && !commandDraft && (
-                <div className="wizard-empty-hint">尚未定义 Command 入口。</div>
+              {(wf?.commands || []).length === 0 && !newCommandForm && (
+                <div className="wizard-empty-hint">尚未选择 Command 入口。</div>
               )}
               {(wf?.commands || []).map(command => (
                 <div className="wizard-command-row" key={command.id}>
-                  <code>{cliInvocation(command)}</code>
-                  {command.bodyOverride
-                    ? <span className="badge badge-warning">已自定义正文</span>
-                    : <span>正文由环节编排自动生成</span>}
+                  <code>{command.name}</code>
+                  {command.version
+                    ? <span className="wizard-command-version">v{command.version}</span>
+                    : <span className="wizard-command-pending">未开发</span>}
+                  <span className="wizard-command-desc">{command.description || '无说明'}</span>
                   <div className="wizard-row-actions">
-                    <button type="button" onClick={() => setCommandDraft({
-                      id: command.id,
-                      name: command.name,
-                      description: command.description || '',
-                      parameters: JSON.stringify(command.parameters || {}, null, 2),
-                      bodyOverride: command.bodyOverride || '',
-                      customizeBody: Boolean(command.bodyOverride)
-                    })}>编辑</button>
                     <button type="button" onClick={() => deleteCommand(command.id)} disabled={saving}>删除</button>
                   </div>
                 </div>
               ))}
-              {commandDraft ? (
-                <form className="wizard-inline-form" onSubmit={saveCommand}>
-                  <div className="wizard-form-grid">
+              {newCommandForm ? (
+                <form className="wizard-inline-form" onSubmit={createNewCommand}>
+                  <div className="form-group" style={{ marginBottom: '0.75rem' }}>
+                    <label className="form-label">Command 名称 *</label>
                     <input
                       className="form-input"
-                      value={commandDraft.name}
-                      onChange={event => setCommandDraft({ ...commandDraft, name: event.target.value })}
-                      placeholder="/codec-generate（小写字母、数字、连字符）"
+                      value={newCommandForm.name}
+                      onChange={event => setNewCommandForm({ ...newCommandForm, name: event.target.value })}
+                      placeholder="/deploy（小写字母、数字、连字符）"
                       required
                     />
-                    <input
-                      className="form-input"
-                      value={commandDraft.description}
-                      onChange={event => setCommandDraft({ ...commandDraft, description: event.target.value })}
-                      placeholder="命令说明：触发时机和预期结果（可选）"
-                    />
                   </div>
-                  <textarea
-                    className="form-input wizard-json-input"
-                    rows="4"
-                    value={commandDraft.parameters}
-                    onChange={event => setCommandDraft({ ...commandDraft, parameters: event.target.value })}
-                    spellCheck="false"
-                    placeholder='位置参数契约，如 { "input": "string", "lang": "string" }'
-                  />
-                  {draftCommandPreview && (
-                    <div className="wizard-preview">
-                      <div className="wizard-preview-title">TUI 调用预览</div>
-                      <code className="wizard-preview-cli">{draftCommandPreview.invocation}</code>
-                      <div className="wizard-preview-title">
-                        <span>
-                          Command 正文
-                          {commandDraft.customizeBody && <span className="badge badge-warning">已自定义</span>}
-                        </span>
-                        {commandDraft.customizeBody ? (
-                          <button
-                            type="button"
-                            onClick={() => setCommandDraft({ ...commandDraft, customizeBody: false, bodyOverride: '' })}
-                          >
-                            恢复自动生成
-                          </button>
-                        ) : (
-                          <button
-                            type="button"
-                            onClick={() => setCommandDraft({ ...commandDraft, customizeBody: true, bodyOverride: draftCommandPreview.body })}
-                          >
-                            自定义正文
-                          </button>
-                        )}
-                      </div>
-                      {commandDraft.customizeBody ? (
-                        <textarea
-                          className="form-input wizard-json-input"
-                          rows="10"
-                          value={commandDraft.bodyOverride}
-                          onChange={event => setCommandDraft({ ...commandDraft, bodyOverride: event.target.value })}
-                          spellCheck="false"
-                        />
-                      ) : (
-                        <pre className="wizard-preview-body">{draftCommandPreview.body}</pre>
-                      )}
+                  <div className="wizard-form-grid">
+                    <div className="form-group" style={{ marginBottom: '0.75rem' }}>
+                      <label className="form-label">责任人</label>
+                      <input
+                        className="form-input"
+                        value={newCommandForm.owner}
+                        onChange={event => setNewCommandForm({ ...newCommandForm, owner: event.target.value })}
+                        placeholder="如：张工"
+                      />
                     </div>
-                  )}
+                    <div className="form-group" style={{ marginBottom: '0.75rem' }}>
+                      <label className="form-label">完成时间</label>
+                      <input
+                        className="form-input"
+                        type="date"
+                        value={newCommandForm.dueDate}
+                        onChange={event => setNewCommandForm({ ...newCommandForm, dueDate: event.target.value })}
+                      />
+                    </div>
+                  </div>
+                  <p className="wizard-step-hint" style={{ marginBottom: '0.75rem' }}>
+                    新定义的 Command 仅记录 name + 责任人 + 完成时间，参数与正文由流水线发布后回填，不可在此直接编写。
+                  </p>
                   <div className="wizard-inline-actions">
-                    <button className="btn btn-primary" type="submit" disabled={saving}>
-                      {commandDraft.id ? '保存 Command' : '添加 Command'}
-                    </button>
-                    <button className="btn btn-secondary" type="button" onClick={() => setCommandDraft(null)}>取消</button>
+                    <button className="btn btn-primary" type="submit" disabled={saving}>创建并加入清单</button>
+                    <button className="btn btn-secondary" type="button" onClick={() => setNewCommandForm(null)}>取消</button>
                   </div>
                 </form>
               ) : (
-                <button className="wizard-add-button" type="button" onClick={() => setCommandDraft({ ...emptyCommandDraft })}>
-                  + 设计 Command
-                </button>
+                <>
+                  <div className="wizard-block-title" style={{ margin: '0.5rem 0 0.75rem' }}>
+                    <span>从清单选择 Command</span>
+                    <small>仅可选择已注册命令，内容由流水线发布</small>
+                  </div>
+                  <select
+                    className="form-input"
+                    value=""
+                    onChange={event => { if (event.target.value) addCommand(event.target.value) }}
+                  >
+                    <option value="">+ 选择一个 Command 加入…</option>
+                    {commandRegistry
+                      .filter(reg => !(wf?.commands || []).some(c => c.commandId && c.commandId.toString() === reg._id))
+                      .map(reg => (
+                        <option key={reg._id} value={reg._id}>
+                          {reg.name}{reg.developed ? '' : '（未开发）'} — {reg.description || '无说明'}
+                        </option>
+                      ))}
+                  </select>
+                  <button
+                    className="wizard-add-button"
+                    type="button"
+                    onClick={() => setNewCommandForm({ name: '', owner: '', dueDate: '' })}
+                  >
+                    + 新定义 Command（仅 name + 责任人 + 完成时间）
+                  </button>
+                </>
               )}
             </div>
           )}
@@ -943,12 +955,23 @@ function WorkflowWizard({ scenario, workflow, initialStep = 0, onClose }) {
                       <option value="Skill">Skill</option>
                     </select>
                   </div>
-                  <input
-                    className="form-input"
-                    value={quickAsset.description}
-                    onChange={event => setQuickAsset({ ...quickAsset, description: event.target.value })}
-                    placeholder="资产能力说明（可选）"
-                  />
+                  <div className="wizard-form-grid">
+                    <input
+                      className="form-input"
+                      value={quickAsset.owner}
+                      onChange={event => setQuickAsset({ ...quickAsset, owner: event.target.value })}
+                      placeholder="责任人，例如：张工"
+                    />
+                    <input
+                      className="form-input"
+                      type="date"
+                      value={quickAsset.dueDate}
+                      onChange={event => setQuickAsset({ ...quickAsset, dueDate: event.target.value })}
+                    />
+                  </div>
+                  <p className="wizard-step-hint" style={{ marginBottom: '0.75rem' }}>
+                    实时新建仅记录 name + 责任人 + 完成时间，资产内容由流水线发布后回填，不可在此直接编写。
+                  </p>
                   <div className="wizard-inline-actions">
                     <button className="btn btn-primary" type="submit" disabled={saving}>创建并加入资产池</button>
                     <button className="btn btn-secondary" type="button" onClick={() => setQuickAsset(null)}>取消</button>

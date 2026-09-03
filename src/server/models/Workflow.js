@@ -65,13 +65,23 @@ const workflowSchema = new mongoose.Schema({
   }],
   commands: [{
     id: String,
+    commandId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Command'
+    },
     name: {
       type: String,
       required: true
     },
     description: String,
     parameters: mongoose.Schema.Types.Mixed,
-    bodyOverride: String
+    bodyOverride: String,
+    version: {
+      type: String,
+      default: null
+    },
+    owner: String,
+    dueDate: Date
   }],
   executionRecords: [{
     executionId: String,
