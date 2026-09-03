@@ -10,6 +10,7 @@ import Login from './pages/Login'
 import Scenarios from './pages/Scenarios'
 import Todo from './pages/Todo'
 import Permission from './pages/Permission'
+import Operations from './pages/Operations'
 import './App.css'
 
 function App() {
@@ -52,6 +53,7 @@ function App() {
             <Route path="/testing" element={<Testing />} />
             <Route path="/todo" element={<Todo />} />
             <Route path="/permission" element={<Permission />} />
+            <Route path="/operations" element={<Operations />} />
             <Route path="*" element={<Navigate to="/" />} />
           </Routes>
         </main>
