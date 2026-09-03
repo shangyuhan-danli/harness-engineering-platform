@@ -44,16 +44,16 @@ function Scenarios() {
       const response = await axios.get('/api/department', { headers: authHeaders() })
       const depts = response.data
       setDepartments(depts)
-      // 默认选中 UPCF 所在部门 → 加载产品 → 默认选 UPCF
-      const targetDept = depts.find(d => d.name === '分组融合数据开发部')
+      // 默认选中 UDM 所在部门 → 加载产品 → 默认选 UDM
+      const targetDept = depts.find(d => d.name === '分组控制开发部')
       if (targetDept) {
         setSelectedDeptId(targetDept._id)
         const pres = await axios.get(`/api/product?departmentId=${targetDept._id}`, { headers: authHeaders() })
         setProducts(pres.data)
-        const upcf = pres.data.find(p => p.name === 'UPCF')
-        if (upcf) {
-          setProductId(upcf._id)
-          await loadWorkspace(upcf._id)
+        const udm = pres.data.find(p => p.name === 'UDM')
+        if (udm) {
+          setProductId(udm._id)
+          await loadWorkspace(udm._id)
         }
       }
     } catch (err) {
