@@ -8,6 +8,8 @@ import Specs from './pages/Specs'
 import Testing from './pages/Testing'
 import Login from './pages/Login'
 import Scenarios from './pages/Scenarios'
+import Todo from './pages/Todo'
+import Permission from './pages/Permission'
 import './App.css'
 
 function App() {
@@ -48,6 +50,8 @@ function App() {
             <Route path="/assets" element={<Assets />} />
             <Route path="/specs" element={<Specs />} />
             <Route path="/testing" element={<Testing />} />
+            <Route path="/todo" element={<Todo />} />
+            <Route path="/permission" element={<Permission />} />
             <Route path="*" element={<Navigate to="/" />} />
           </Routes>
         </main>
