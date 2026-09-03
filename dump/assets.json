@@ -1,0 +1,139 @@
+[
+  {
+    "_id": "6a996b4c5efe45cc40467d34",
+    "name": "udm-coding-agent",
+    "assetType": "Agent",
+    "tags": [],
+    "version": "1.0.0",
+    "status": "draft",
+    "owner": "李丹",
+    "dueDate": null,
+    "productId": "6a994ef8c16e9b6f83fff87e",
+    "departmentId": null,
+    "content": {
+      "dependencies": []
+    },
+    "specifications": {
+      "capabilities": [],
+      "constraints": []
+    },
+    "marketplace": {
+      "downloads": 0,
+      "rating": 0,
+      "freeType": "free"
+    },
+    "releaseNotes": [],
+    "createdAt": "2026-09-03T12:42:52.195Z",
+    "updatedAt": "2026-09-03T12:42:52.195Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a996b595efe45cc40467d39",
+    "name": "udm-coding-skill",
+    "assetType": "Skill",
+    "tags": [],
+    "version": "1.0.0",
+    "status": "draft",
+    "owner": "李丹",
+    "dueDate": null,
+    "productId": "6a994ef8c16e9b6f83fff87e",
+    "departmentId": null,
+    "content": {
+      "dependencies": []
+    },
+    "specifications": {
+      "capabilities": [],
+      "constraints": []
+    },
+    "marketplace": {
+      "downloads": 0,
+      "rating": 0,
+      "freeType": "free"
+    },
+    "releaseNotes": [],
+    "createdAt": "2026-09-03T12:43:05.241Z",
+    "updatedAt": "2026-09-03T12:43:05.241Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a996b675efe45cc40467d3e",
+    "name": "udm-dt-skill",
+    "assetType": "Agent",
+    "tags": [],
+    "version": "1.0.0",
+    "status": "draft",
+    "owner": "李丹",
+    "dueDate": null,
+    "productId": "6a994ef8c16e9b6f83fff87e",
+    "departmentId": null,
+    "content": {
+      "dependencies": []
+    },
+    "specifications": {
+      "capabilities": [],
+      "constraints": []
+    },
+    "marketplace": {
+      "downloads": 0,
+      "rating": 0,
+      "freeType": "free"
+    },
+    "releaseNotes": [],
+    "createdAt": "2026-09-03T12:43:19.590Z",
+    "updatedAt": "2026-09-03T12:43:19.590Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a996b7c5efe45cc40467d43",
+    "name": "udm-design-skill",
+    "assetType": "Skill",
+    "tags": [],
+    "version": "1.0.0",
+    "status": "draft",
+    "owner": "李丹",
+    "dueDate": null,
+    "productId": "6a994ef8c16e9b6f83fff87e",
+    "departmentId": null,
+    "content": {
+      "dependencies": []
+    },
+    "specifications": {
+      "capabilities": [],
+      "constraints": []
+    },
+    "marketplace": {
+      "downloads": 0,
+      "rating": 0,
+      "freeType": "free"
+    },
+    "releaseNotes": [],
+    "createdAt": "2026-09-03T12:43:40.675Z",
+    "updatedAt": "2026-09-03T12:43:40.675Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a99745ddc6a512cd6e502c9",
+    "name": "编解码生成 Agent",
+    "description": "根据协议定义生成编解码实现代码",
+    "assetType": "Agent",
+    "status": "published",
+    "version": "1.0.0",
+    "productId": "6a994ef8c16e9b6f83fff87e",
+    "marketplace": {
+      "downloads": 256,
+      "rating": 4.8,
+      "calls": 560,
+      "reviews": 20,
+      "freeType": "free"
+    },
+    "releaseNotes": [
+      {
+        "version": "1.0.0",
+        "date": "2026-09-03T13:21:33.846Z",
+        "organization": "云核心网研发管理部",
+        "notes": "发布到组织：云核心网研发管理部"
+      }
+    ],
+    "__v": 0
+  }
+]

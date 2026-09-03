@@ -1,0 +1,142 @@
+[
+  {
+    "_id": "6a996ab05efe45cc40467cb8",
+    "name": "mml开发作业流",
+    "description": "mml开发作业流",
+    "businessScenario": "MML开发",
+    "scenarioId": "6a996a985efe45cc40467ca9",
+    "status": "active",
+    "stages": [
+      {
+        "id": "34de475e-f441-4889-91bc-c4f1f337f46d",
+        "name": "设计",
+        "type": "方案设计",
+        "description": "",
+        "order": 0,
+        "steps": [
+          {
+            "id": "231df4d5-0c01-47a0-87c3-caf48cc9c080",
+            "name": "详细设计",
+            "description": "",
+            "order": 0,
+            "assets": [
+              {
+                "assetId": "6a996b7c5efe45cc40467d43",
+                "type": "Skill",
+                "role": "详细设计执行资产",
+                "_id": "6a996b955efe45cc40467d63"
+              }
+            ],
+            "_id": "6a996ae55efe45cc40467cd4"
+          }
+        ],
+        "_id": "6a996ad95efe45cc40467cc2"
+      },
+      {
+        "id": "908f817c-a0b0-41dd-b505-c99b2e5bcaaa",
+        "name": "编码",
+        "type": "场景理解",
+        "description": "",
+        "order": 1,
+        "steps": [
+          {
+            "id": "03a7384a-ddbe-4ca6-aae7-ec00425cb2d3",
+            "name": "代码开发",
+            "description": "",
+            "order": 0,
+            "assets": [
+              {
+                "assetId": "6a996b595efe45cc40467d39",
+                "type": "Skill",
+                "role": "代码开发执行资产",
+                "_id": "6a996b955efe45cc40467d72"
+              },
+              {
+                "assetId": "6a996b4c5efe45cc40467d34",
+                "type": "Agent",
+                "role": "代码开发执行资产",
+                "_id": "6a996b955efe45cc40467d73"
+              }
+            ],
+            "_id": "6a996b005efe45cc40467ce0"
+          },
+          {
+            "id": "1368eee9-ea72-46f1-a9ac-7125c1c5083c",
+            "name": "代码测试",
+            "description": "",
+            "order": 1,
+            "assets": [
+              {
+                "assetId": "6a996b675efe45cc40467d3e",
+                "type": "Agent",
+                "role": "代码测试执行资产",
+                "_id": "6a996b955efe45cc40467d84"
+              }
+            ],
+            "_id": "6a996b0c5efe45cc40467cee"
+          }
+        ],
+        "_id": "6a996adf5efe45cc40467cca"
+      }
+    ],
+    "version": 1,
+    "assets": [
+      {
+        "assetId": "6a996b4c5efe45cc40467d34",
+        "type": "Agent",
+        "version": "1.0.0",
+        "role": "workflow-resource",
+        "_id": "6a996b955efe45cc40467d51"
+      },
+      {
+        "assetId": "6a996b595efe45cc40467d39",
+        "type": "Skill",
+        "version": "1.0.0",
+        "role": "workflow-resource",
+        "_id": "6a996b955efe45cc40467d52"
+      },
+      {
+        "assetId": "6a996b675efe45cc40467d3e",
+        "type": "Agent",
+        "version": "1.0.0",
+        "role": "workflow-resource",
+        "_id": "6a996b955efe45cc40467d53"
+      },
+      {
+        "assetId": "6a996b7c5efe45cc40467d43",
+        "type": "Skill",
+        "version": "1.0.0",
+        "role": "workflow-resource",
+        "_id": "6a996b955efe45cc40467d54"
+      }
+    ],
+    "commands": [
+      {
+        "id": "92eef3f4-3335-4c1f-a971-4b0bd646dd40",
+        "commandId": "6a996b225efe45cc40467d07",
+        "name": "/udm-e2e-command",
+        "description": "",
+        "bodyOverride": "",
+        "version": null,
+        "owner": "李丹",
+        "dueDate": null,
+        "_id": "6a996b235efe45cc40467d11"
+      },
+      {
+        "id": "6f6a9170-7527-4139-bed5-41c639d08f36",
+        "commandId": "6a996b3b5efe45cc40467d1d",
+        "name": "/udm-test-command",
+        "description": "",
+        "bodyOverride": "",
+        "version": null,
+        "owner": "李丹",
+        "dueDate": null,
+        "_id": "6a996b3b5efe45cc40467d28"
+      }
+    ],
+    "executionRecords": [],
+    "createdAt": "2026-09-03T12:40:16.946Z",
+    "updatedAt": "2026-09-03T12:44:05.320Z",
+    "__v": 11
+  }
+]

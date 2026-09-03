@@ -1,0 +1,137 @@
+[
+  {
+    "_id": "6a994ef8c16e9b6f83fff88a",
+    "name": "/codec-generate",
+    "description": "根据协议定义生成编解码实现",
+    "parameters": {
+      "input": "string",
+      "lang": "string"
+    },
+    "bodyOverride": "",
+    "version": "1.0.0",
+    "status": "draft",
+    "owner": "张工",
+    "source": "pipeline",
+    "releaseNotes": [],
+    "updatedAt": "2026-09-03T10:42:00.176Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a994ef8c16e9b6f83fff88c",
+    "name": "/pr-review",
+    "description": "对指定 PR 进行代码评审并输出建议",
+    "parameters": {
+      "pr_url": "string"
+    },
+    "bodyOverride": "",
+    "version": "1.0.0",
+    "status": "draft",
+    "owner": "李工",
+    "source": "pipeline",
+    "releaseNotes": [],
+    "updatedAt": "2026-09-03T10:42:00.176Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a994ef8c16e9b6f83fff88b",
+    "name": "/codec-validate",
+    "description": "校验编解码实现的协议兼容性",
+    "parameters": {
+      "input": "string"
+    },
+    "bodyOverride": "",
+    "version": "1.0.0",
+    "status": "draft",
+    "owner": "张工",
+    "source": "pipeline",
+    "releaseNotes": [],
+    "updatedAt": "2026-09-03T10:42:00.176Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a994ef8c16e9b6f83fff88e",
+    "name": "/analyze",
+    "description": "分析输入并输出结构化结论",
+    "bodyOverride": "",
+    "version": null,
+    "status": "draft",
+    "owner": "赵工",
+    "dueDate": "2026-09-17T10:42:00.176Z",
+    "source": "manual",
+    "releaseNotes": [],
+    "updatedAt": "2026-09-03T10:42:00.177Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a994ef8c16e9b6f83fff88f",
+    "name": "/summarize",
+    "description": "对输入文本生成结构化摘要",
+    "parameters": {
+      "input": "string"
+    },
+    "bodyOverride": "执行「摘要生成」作业流程。",
+    "version": "1.0.0",
+    "status": "draft",
+    "owner": "钱工",
+    "source": "pipeline",
+    "releaseNotes": [],
+    "updatedAt": "2026-09-03T10:42:00.177Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a994ef8c16e9b6f83fff88d",
+    "name": "/deploy",
+    "description": "发布产物到目标环境",
+    "bodyOverride": "",
+    "version": null,
+    "status": "draft",
+    "owner": "王工",
+    "dueDate": "2026-09-10T10:42:00.176Z",
+    "source": "manual",
+    "releaseNotes": [],
+    "updatedAt": "2026-09-03T10:42:00.176Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a994ef8c16e9b6f83fff890",
+    "name": "/test-unpublished",
+    "description": "用于测试的未发布 Command",
+    "bodyOverride": "",
+    "version": null,
+    "status": "draft",
+    "owner": "测试",
+    "dueDate": "2026-09-06T10:42:00.176Z",
+    "source": "manual",
+    "releaseNotes": [],
+    "updatedAt": "2026-09-03T10:42:00.177Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a996b225efe45cc40467d07",
+    "name": "/udm-e2e-command",
+    "description": "",
+    "bodyOverride": "",
+    "version": null,
+    "status": "draft",
+    "owner": "李丹",
+    "dueDate": null,
+    "source": "manual",
+    "releaseNotes": [],
+    "updatedAt": "2026-09-03T12:42:10.946Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a996b3b5efe45cc40467d1d",
+    "name": "/udm-test-command",
+    "description": "",
+    "bodyOverride": "",
+    "version": null,
+    "status": "draft",
+    "owner": "李丹",
+    "dueDate": null,
+    "source": "manual",
+    "releaseNotes": [],
+    "updatedAt": "2026-09-03T12:42:35.049Z",
+    "__v": 0
+  }
+]

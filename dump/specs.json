@@ -1,0 +1,66 @@
+[
+  {
+    "_id": "6a994ef8c16e9b6f83fff8b1",
+    "title": "工单分类需求说明",
+    "description": "定义工单分类的业务需求与验收标准",
+    "specType": "requirement",
+    "status": "approved",
+    "content": {
+      "acceptance": [],
+      "rules": [],
+      "examples": []
+    },
+    "relationships": {
+      "relatedSpecs": [],
+      "relatedWorkflows": [],
+      "relatedAssets": []
+    },
+    "metadata": {
+      "priority": "high",
+      "category": "客服",
+      "complexity": "moderate",
+      "tags": []
+    },
+    "validation": {
+      "checklist": [],
+      "reviewComments": []
+    },
+    "version": 1,
+    "history": [],
+    "createdAt": "2026-09-03T10:42:00.189Z",
+    "updatedAt": "2026-09-03T10:42:00.189Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a994ef8c16e9b6f83fff8b2",
+    "title": "工单派单接口契约",
+    "description": "定义派单 Extension 与工单系统之间的接口契约",
+    "specType": "contract",
+    "status": "review",
+    "content": {
+      "acceptance": [],
+      "rules": [],
+      "examples": []
+    },
+    "relationships": {
+      "relatedSpecs": [],
+      "relatedWorkflows": [],
+      "relatedAssets": []
+    },
+    "metadata": {
+      "priority": "medium",
+      "category": "客服",
+      "complexity": "moderate",
+      "tags": []
+    },
+    "validation": {
+      "checklist": [],
+      "reviewComments": []
+    },
+    "version": 1,
+    "history": [],
+    "createdAt": "2026-09-03T10:42:00.189Z",
+    "updatedAt": "2026-09-03T10:42:00.189Z",
+    "__v": 0
+  }
+]

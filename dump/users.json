@@ -1,0 +1,11 @@
+[
+  {
+    "_id": "6a994ef8c16e9b6f83fff8ba",
+    "username": "moli",
+    "email": "moli@example.com",
+    "password": "$2a$10$TTneez5PruQ3hyjHbmkvNuowES57nQkh4HIVbXkpg.FxBVWMlgrzK",
+    "role": "developer",
+    "createdAt": "2026-09-03T10:42:00.267Z",
+    "__v": 0
+  }
+]

@@ -1,0 +1,56 @@
+[
+  {
+    "_id": "6a994ef8c16e9b6f83fff872",
+    "name": "云核心网产品线",
+    "parentId": null,
+    "level": 1,
+    "createdAt": "2026-09-03T10:42:00.158Z",
+    "updatedAt": "2026-09-03T10:42:00.158Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a994ef8c16e9b6f83fff874",
+    "name": "云核心网研发管理部",
+    "parentId": "6a994ef8c16e9b6f83fff872",
+    "level": 2,
+    "createdAt": "2026-09-03T10:42:00.162Z",
+    "updatedAt": "2026-09-03T10:42:00.162Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a994ef8c16e9b6f83fff876",
+    "name": "分组核心网产品部",
+    "parentId": "6a994ef8c16e9b6f83fff874",
+    "level": 3,
+    "createdAt": "2026-09-03T10:42:00.163Z",
+    "updatedAt": "2026-09-03T10:42:00.163Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a994ef8c16e9b6f83fff878",
+    "name": "分组控制开发部",
+    "parentId": "6a994ef8c16e9b6f83fff876",
+    "level": 4,
+    "createdAt": "2026-09-03T10:42:00.164Z",
+    "updatedAt": "2026-09-03T10:42:00.164Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a994ef8c16e9b6f83fff87a",
+    "name": "分组移动接入开发部",
+    "parentId": "6a994ef8c16e9b6f83fff876",
+    "level": 4,
+    "createdAt": "2026-09-03T10:42:00.165Z",
+    "updatedAt": "2026-09-03T10:42:00.165Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a994ef8c16e9b6f83fff87c",
+    "name": "分组融合数据开发部",
+    "parentId": "6a994ef8c16e9b6f83fff876",
+    "level": 4,
+    "createdAt": "2026-09-03T10:42:00.165Z",
+    "updatedAt": "2026-09-03T10:42:00.165Z",
+    "__v": 0
+  }
+]

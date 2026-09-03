@@ -1,0 +1,44 @@
+[
+  {
+    "_id": "6a996a6e5efe45cc40467ca2",
+    "name": "需求开发",
+    "code": "",
+    "description": "需求开发",
+    "parentId": null,
+    "level": 1,
+    "status": "draft",
+    "stageTypes": [
+      "Command 入口",
+      "场景理解",
+      "方案设计",
+      "任务执行",
+      "结果验证",
+      "Extension 构建"
+    ],
+    "productId": "6a994ef8c16e9b6f83fff87e",
+    "createdAt": "2026-09-03T12:39:10.709Z",
+    "updatedAt": "2026-09-03T12:39:10.709Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a996a985efe45cc40467ca9",
+    "name": "MML开发",
+    "code": "udm-mml-e2e-extension",
+    "description": "mml代码开发",
+    "parentId": "6a996a6e5efe45cc40467ca2",
+    "level": 2,
+    "status": "draft",
+    "stageTypes": [
+      "Command 入口",
+      "场景理解",
+      "方案设计",
+      "任务执行",
+      "结果验证",
+      "Extension 构建"
+    ],
+    "productId": "6a994ef8c16e9b6f83fff87e",
+    "createdAt": "2026-09-03T12:39:52.532Z",
+    "updatedAt": "2026-09-03T12:40:03.970Z",
+    "__v": 0
+  }
+]

@@ -1,0 +1,43 @@
+[
+  {
+    "_id": "6a994ef8c16e9b6f83fff8b5",
+    "name": "工单分类准确率评测集",
+    "description": "验证工单分类 Agent 在标注数据集上的准确率是否达标",
+    "testType": "regression",
+    "status": "active",
+    "testCases": [
+      {
+        "caseId": "case-1",
+        "name": "退款类工单识别",
+        "expectedOutput": "退款",
+        "assertion": "equals",
+        "priority": "medium",
+        "_id": "6a994ef8c16e9b6f83fff8b6"
+      },
+      {
+        "caseId": "case-2",
+        "name": "咨询类工单识别",
+        "expectedOutput": "咨询",
+        "assertion": "equals",
+        "priority": "medium",
+        "_id": "6a994ef8c16e9b6f83fff8b7"
+      }
+    ],
+    "qualityGates": [
+      {
+        "metricName": "accuracy",
+        "operator": ">=",
+        "threshold": 90,
+        "severity": "critical",
+        "_id": "6a994ef8c16e9b6f83fff8b8"
+      }
+    ],
+    "automation": {
+      "triggeredBy": []
+    },
+    "executionRecords": [],
+    "createdAt": "2026-09-03T10:42:00.191Z",
+    "updatedAt": "2026-09-03T10:42:00.191Z",
+    "__v": 0
+  }
+]

@@ -1,0 +1,29 @@
+[
+  {
+    "_id": "6a994ef8c16e9b6f83fff87e",
+    "name": "UDM",
+    "code": "UDM",
+    "departmentId": "6a994ef8c16e9b6f83fff878",
+    "createdAt": "2026-09-03T10:42:00.166Z",
+    "updatedAt": "2026-09-03T10:42:00.166Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a994ef8c16e9b6f83fff880",
+    "name": "USCDB",
+    "code": "USCDB",
+    "departmentId": "6a994ef8c16e9b6f83fff87a",
+    "createdAt": "2026-09-03T10:42:00.167Z",
+    "updatedAt": "2026-09-03T10:42:00.167Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a994ef8c16e9b6f83fff882",
+    "name": "UPCF",
+    "code": "UPCF",
+    "departmentId": "6a994ef8c16e9b6f83fff87c",
+    "createdAt": "2026-09-03T10:42:00.167Z",
+    "updatedAt": "2026-09-03T10:42:00.167Z",
+    "__v": 0
+  }
+]
