@@ -356,7 +356,7 @@ function Assets() {
                 <div className="asset-meta">
                   <span>⭐ {(asset.marketplace?.rating || 0).toFixed(1)}</span>
                   <span>📥 {asset.marketplace?.downloads || 0}</span>
-                  <span>v{asset.version}</span>
+                  <span>{asset.version ? 'v' + asset.version : '未开发'}</span>
                   <span className={`badge ${asset.status === 'published' ? 'badge-success' : 'badge-warning'}`}>
                     {asset.status === 'published' ? '已发布' : asset.status === 'deprecated' ? '已下架' : '草稿'}
                   </span>

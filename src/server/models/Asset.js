@@ -16,7 +16,7 @@ const assetSchema = new mongoose.Schema({
   tags: [String],
   version: {
     type: String,
-    default: '1.0.0'
+    default: null
   },
   status: {
     type: String,
