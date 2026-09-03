@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 import axios from 'axios'
 import * as XLSX from 'xlsx'
 import './Assets.css'
@@ -43,6 +44,7 @@ const ORG_LIST = ['云核心网研发管理部', '客服中心', '运维部', '�
 const emptyForm = { name: '', assetType: 'Agent', description: '', departmentId: '', productId: '', owner: '', dueDate: '' }
 
 function Assets() {
+  const navigate = useNavigate()
   const [assets, setAssets] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
@@ -347,7 +349,7 @@ function Assets() {
         ) : (
           <div className="assets-grid">
             {assets.map(asset => (
-              <div key={asset._id} className="asset-card" onClick={async () => { setDetailAsset(asset); setDetailVersion(asset.version); setDetailTab('content'); setDetailWorkflow(null); if (asset.auto && asset.scenarioId) { try { const r = await axios.get(`/api/workflow?scenarioId=${asset.scenarioId}`, { headers: authHeaders() }); setDetailWorkflow(r.data[0] || null) } catch (e) { setDetailWorkflow(null) } } }} style={{ cursor: 'pointer' }}>
+              <div key={asset._id} className="asset-card" onClick={() => navigate('/assets/' + asset._id + '/detail', { state: { asset } })} style={{ cursor: 'pointer' }}>
                 <div className="asset-header">
                   <h3>{asset.name}</h3>
                   <span className="badge badge-info">{asset.assetType}</span>
@@ -372,7 +374,7 @@ function Assets() {
                   ) : (
                     <button
                       className="btn btn-primary"
-                      onClick={() => { setPublishAsset(asset); setPublishOrg(''); setPublishTab('publish') }}
+                      onClick={() => navigate('/assets/' + asset._id + '/publish', { state: { asset } })}
                       disabled={publishingId === asset._id}
                     >
                       {publishingId === asset._id ? '发布中...' : '发布'}

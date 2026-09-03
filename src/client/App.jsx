@@ -11,6 +11,8 @@ import Scenarios from './pages/Scenarios'
 import Todo from './pages/Todo'
 import Permission from './pages/Permission'
 import Operations from './pages/Operations'
+import AssetDetail from './pages/AssetDetail'
+import AssetPublish from './pages/AssetPublish'
 import './App.css'
 
 function App() {
@@ -54,6 +56,8 @@ function App() {
             <Route path="/todo" element={<Todo />} />
             <Route path="/permission" element={<Permission />} />
             <Route path="/operations" element={<Operations />} />
+            <Route path="/assets/:id/detail" element={<AssetDetail />} />
+            <Route path="/assets/:id/publish" element={<AssetPublish />} />
             <Route path="*" element={<Navigate to="/" />} />
           </Routes>
         </main>
