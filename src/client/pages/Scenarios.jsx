@@ -262,11 +262,7 @@ function Scenarios() {
             <>
               <div className="scenario-summary">
                 <div>
-                  <div className="scenario-breadcrumb">
-                    L{selectedScenario.level} 场景
-                  </div>
                   <h2>{selectedScenario.name}</h2>
-                  <p>{selectedScenario.description || '请补充场景目标、边界与预期业务结果。'}</p>
                 </div>
                 <div className="scenario-summary-actions">
                   {selectedScenario.level === 1 && (
@@ -316,11 +312,7 @@ function Scenarios() {
                       <article className="workflow-designer-card" key={workflow._id}>
                         <div className="workflow-card-header">
                           <div>
-                            <span className={`badge ${workflow.status === 'active' ? 'badge-success' : 'badge-warning'}`}>
-                              {workflow.status === 'active' ? '设计完成' : '草稿'}
-                            </span>
                             <h3>{workflow.name}</h3>
-                            <p>{workflow.description || '暂无流程说明'}</p>
                           </div>
                           <div className="workflow-card-actions">
                             <button
