@@ -357,7 +357,14 @@ function Scenarios() {
                           <div className="workflow-config-block">
                             <div className="config-block-title">
                               <span>Workflow 资产池</span>
-                              <small>{workflow.assets?.length || 0} 个</small>
+                              <small>
+                                {workflow.assets?.length || 0} 个
+                                {workflow.assets?.length > 0 && (
+                                  workflow.assets.every(a => a.assetId?.version)
+                                    ? ' · 全部已建设 ✓'
+                                    : ` · ${workflow.assets.filter(a => !a.assetId?.version).length} 个未建设`
+                                )}
+                              </small>
                             </div>
                             {workflow.assets?.length > 0 ? (
                               <div className="workflow-asset-list">
@@ -365,6 +372,9 @@ function Scenarios() {
                                   <span className="workflow-asset-chip" key={item._id || item.assetId?._id}>
                                     <b>{item.type}</b>
                                     {item.assetId?.name || '未找到资产'}
+                                    {item.assetId?.version
+                                      ? <span style={{ color: '#16a34a', fontWeight: 700 }}>✓</span>
+                                      : <span style={{ color: '#f59e0b', fontWeight: 700 }}>✗</span>}
                                   </span>
                                 ))}
                               </div>
