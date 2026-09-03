@@ -367,7 +367,9 @@ function Assets() {
                 <div className="asset-actions">
                   {asset.auto ? (
                     <button className="btn btn-primary" onClick={() => openExtPublish(asset)}>发布</button>
-                  ) : asset.status === 'draft' ? (
+                  ) : !asset.version ? null : (asset.releaseNotes || []).some(r => (r.version || '') === (asset.version || '')) ? (
+                    <span className="badge badge-success">已发布</span>
+                  ) : (
                     <button
                       className="btn btn-primary"
                       onClick={() => { setPublishAsset(asset); setPublishOrg(''); setPublishTab('publish') }}
@@ -375,7 +377,7 @@ function Assets() {
                     >
                       {publishingId === asset._id ? '发布中...' : '发布'}
                     </button>
-                  ) : null}
+                  )}
                 </div>
               </div>
             ))}
