@@ -79,7 +79,6 @@ function Assets() {
   useEffect(() => {
     loadDepartments()
     loadAllProducts()
-    fetchAssets()
   }, [])
 
   useEffect(() => {
@@ -90,6 +89,18 @@ function Assets() {
     try {
       const res = await axios.get('/api/department', { headers: authHeaders() })
       setDepartments(res.data)
+      // 默认选 UDM 所在部门 → 产品 → 筛选 UDM 资产
+      const dept = res.data.find(d => d.name === '分组控制开发部')
+      if (dept) {
+        setSelectedDeptId(dept._id)
+        const pres = await axios.get(`/api/product?departmentId=${dept._id}`, { headers: authHeaders() })
+        setProducts(pres.data)
+        const udm = pres.data.find(p => p.name === 'UDM')
+        if (udm) {
+          setProductId(udm._id)
+          fetchAssets({ productId: udm._id })
+        }
+      }
     } catch (err) {
       console.error('Failed to load departments:', err)
     }

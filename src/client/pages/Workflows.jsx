@@ -21,13 +21,24 @@ function Workflows() {
   useEffect(() => {
     loadDepartments()
     loadAllProducts()
-    fetchWorkflows()
   }, [])
 
   const loadDepartments = async () => {
     try {
       const res = await axios.get('/api/department', { headers: authHeaders() })
       setDepartments(res.data)
+      // 默认选 UDM 所在部门 → 产品 → 筛选 UDM 工作流
+      const dept = res.data.find(d => d.name === '分组控制开发部')
+      if (dept) {
+        setSelectedDeptId(dept._id)
+        const pres = await axios.get(`/api/product?departmentId=${dept._id}`, { headers: authHeaders() })
+        setProducts(pres.data)
+        const udm = pres.data.find(p => p.name === 'UDM')
+        if (udm) {
+          setProductId(udm._id)
+          fetchWorkflows({ productId: udm._id })
+        }
+      }
     } catch (err) {
       console.error('Failed to load departments:', err)
     }
