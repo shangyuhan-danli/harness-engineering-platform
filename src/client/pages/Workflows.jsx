@@ -193,7 +193,7 @@ function Workflows() {
                       onClick={() => handlePreview(workflow._id)}
                       disabled={previewLoading}
                     >
-                      预览 CLI 调用
+                      预览调用入口
                     </button>
                   </td>
                 </tr>
