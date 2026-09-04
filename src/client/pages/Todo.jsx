@@ -22,7 +22,7 @@ function Todo() {
     <div>
       <div className="header">
         <div>
-          <h1>✅ 我的待办</h1>
+          <h1>我的待办</h1>
           <p className="page-description">分派给当前用户的开发任务</p>
         </div>
       </div>

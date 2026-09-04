@@ -30,7 +30,7 @@ function Permission() {
     <div>
       <div className="header">
         <div>
-          <h1>🔐 权限管理</h1>
+          <h1>权限管理</h1>
           <p className="page-description">部门 Owner 可管理本部门管理员</p>
         </div>
         <span className="badge badge-info">{users.length} 人</span>

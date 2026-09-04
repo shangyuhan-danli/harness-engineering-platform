@@ -12,7 +12,7 @@ function Operations() {
 
   return (
     <div>
-      <div className="header"><div><h1>📊 工程总览</h1><p className="page-description">建设全景 · 基于部门度量</p></div></div>
+      <div className="header"><div><h1>工程总览</h1><p className="page-description">建设全景 · 基于部门度量</p></div></div>
 
       <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', marginBottom: '1rem' }}>
         <div style={{ flex: 1, minWidth: 300, border: '1px solid var(--gray-200)', borderRadius: '.5rem', padding: '1rem', background: '#fff' }}>

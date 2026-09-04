@@ -7,7 +7,7 @@ function Sidebar({ user, onLogout }) {
   const menuItems = [
     { name: '业务场景设计', path: '/', icon: '🧭' },
     { name: 'Harness 工作流', path: '/workflows', icon: '⚙️' },
-    { name: 'Agent / Skill 资产', path: '/assets', icon: '🧩' },
+    { name: '资产清单', path: '/assets', icon: '🧩' },
     { name: '我的待办', path: '/todo', icon: '📌' },
     { name: '权限管理', path: '/permission', icon: '🔐' },
   ]

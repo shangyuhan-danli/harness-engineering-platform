@@ -306,7 +306,7 @@ function Assets() {
     <div className="assets-container">
       <div className="header">
         <div>
-          <h1>Agent / Skill 资产</h1>
+          <h1>资产清单</h1>
           <p className="page-description">设计可复用的执行单元，并在业务场景的 Workflow 阶段中进行编排。Extension 基于场景自动生成。</p>
         </div>
         <div style={{ display: 'flex', gap: '0.5rem' }}>
