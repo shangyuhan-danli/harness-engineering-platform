@@ -14,7 +14,7 @@ import './WorkflowWizard.css'
 
 const PARAM_KEY_PATTERN = /^[a-zA-Z][a-zA-Z0-9_-]*$/
 
-const emptyStageDraft = { id: null, name: '', type: '场景理解', description: '' }
+const emptyStageDraft = { id: null, name: '', description: '' }
 const emptyStepDraft = { stageId: null, id: null, name: '', description: '' }
 const emptyCommandDraft = {
   id: null,
@@ -282,7 +282,6 @@ function WorkflowWizard({ scenario, workflow, initialStep = 0, onClose }) {
       const id = await ensureWorkflow()
       const payload = {
         name: stageDraft.name,
-        type: stageDraft.type,
         description: stageDraft.description
       }
       if (stageDraft.id) {
@@ -740,15 +739,6 @@ function WorkflowWizard({ scenario, workflow, initialStep = 0, onClose }) {
                           placeholder="环节名称，例如：方案设计"
                           required
                         />
-                        <select
-                          className="form-input"
-                          value={stageDraft.type}
-                          onChange={event => setStageDraft({ ...stageDraft, type: event.target.value })}
-                        >
-                          {stageTypes.map(type => (
-                            <option value={type} key={type}>{type}</option>
-                          ))}
-                        </select>
                       </div>
                       <input
                         className="form-input"

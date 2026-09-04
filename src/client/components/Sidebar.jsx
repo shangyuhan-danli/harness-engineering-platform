@@ -9,7 +9,6 @@ function Sidebar({ user, onLogout }) {
     { name: 'Harness 工作流', path: '/workflows', icon: '⚙️' },
     { name: 'Agent / Skill 资产', path: '/assets', icon: '🧩' },
     { name: 'SPEC 工程', path: '/specs', icon: '📋' },
-    { name: '评测/质量工程', path: '/testing', icon: '✅' },
     { name: '工程总览', path: '/operations', icon: '📊' },
     { name: '我的待办', path: '/todo', icon: '📌' },
     { name: '权限管理', path: '/permission', icon: '🔐' },

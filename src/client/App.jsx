@@ -5,8 +5,6 @@ import Dashboard from './pages/Dashboard'
 import Workflows from './pages/Workflows'
 import Assets from './pages/Assets'
 import Specs from './pages/Specs'
-import Testing from './pages/Testing'
-import Login from './pages/Login'
 import Scenarios from './pages/Scenarios'
 import Todo from './pages/Todo'
 import Permission from './pages/Permission'
@@ -52,7 +50,6 @@ function App() {
             <Route path="/workflows" element={<Workflows />} />
             <Route path="/assets" element={<Assets />} />
             <Route path="/specs" element={<Specs />} />
-            <Route path="/testing" element={<Testing />} />
             <Route path="/todo" element={<Todo />} />
             <Route path="/permission" element={<Permission />} />
             <Route path="/operations" element={<Operations />} />
