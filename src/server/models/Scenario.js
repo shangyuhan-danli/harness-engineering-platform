@@ -26,7 +26,12 @@ const scenarioSchema = new mongoose.Schema({
     enum: ['draft', 'active', 'archived'],
     default: 'draft'
   },
-  // 场景自定义的作业阶段类型调色板：该场景下的 Workflow 阶段从这里选择类型
+  // 一级场景的业务标签（如：编解码、相机、性能），用于分类与筛选
+  tags: {
+    type: [String],
+    default: []
+  },
+  // 已废弃：环节类型调色板（环节不再区分类型）。字段保留仅为兼容历史数据。
   stageTypes: {
     type: [String],
     default: ['Command 入口', '场景理解', '方案设计', '任务执行', '结果验证', 'Extension 构建']

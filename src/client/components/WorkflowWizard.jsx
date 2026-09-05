@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import axios from 'axios'
 import { authHeaders } from '../utils/auth'
-import { WIZARD_STEPS, DEFAULT_STAGE_TYPES, stageTypeLabel, getWorkflowProgress } from '../utils/workflowProgress'
+import { WIZARD_STEPS, getWorkflowProgress } from '../utils/workflowProgress'
 import {
   COMMAND_NAME_PATTERN,
   normalizeCommandName,
@@ -58,9 +58,6 @@ function WorkflowWizard({ scenario, workflow, initialStep = 0, onClose }) {
   const [commandRegistry, setCommandRegistry] = useState([])
   // 新定义 Command 表单（仅 name + 责任人 + 完成时间，不写参数/正文）
   const [newCommandForm, setNewCommandForm] = useState(null)
-  // 场景的环节类型调色板（场景内自定义），新增/删除会持久化到 Scenario.stageTypes
-  const [stageTypes, setStageTypes] = useState(scenario?.stageTypes?.length ? scenario.stageTypes : DEFAULT_STAGE_TYPES)
-  const [newStageType, setNewStageType] = useState('')
   const [poolIds, setPoolIds] = useState(
     (workflow?.assets || []).map(item => item.assetId?._id || item.assetId).filter(Boolean)
   )
@@ -359,38 +356,6 @@ function WorkflowWizard({ scenario, workflow, initialStep = 0, onClose }) {
     })
   }
 
-  // 向场景的环节类型调色板新增类型（持久化到 Scenario，后续该场景所有环节可选）
-  const addStageType = async () => {
-    const value = newStageType.trim()
-    if (!value) return
-    if (stageTypes.includes(value)) {
-      setError('该环节类型已存在')
-      return
-    }
-    const next = [...stageTypes, value]
-    const ok = await runStep(() => axios.put(`/api/scenario/${scenario._id}`, {
-      stageTypes: next
-    }, { headers: authHeaders() }))
-    if (ok) {
-      setStageTypes(next)
-      setNewStageType('')
-      if (stageDraft) setStageDraft({ ...stageDraft, type: value })
-    }
-  }
-
-  // 从调色板删除类型：已被环节使用的类型仅提示，不改动已有环节
-  const removeStageType = async (type) => {
-    const inUse = (wf?.stages || []).filter(stage => stage.type === type).length
-    if (inUse > 0 && !window.confirm(`有 ${inUse} 个环节正在使用「${type}」，从调色板删除不会影响这些环节。确认删除？`)) {
-      return
-    }
-    const next = stageTypes.filter(item => item !== type)
-    const ok = await runStep(() => axios.put(`/api/scenario/${scenario._id}`, {
-      stageTypes: next
-    }, { headers: authHeaders() }))
-    if (ok) setStageTypes(next)
-  }
-
   // ---- 步 3：Command 入口 ----
 
   const parseCommandParameters = (raw) => {
@@ -610,37 +575,6 @@ function WorkflowWizard({ scenario, workflow, initialStep = 0, onClose }) {
                 <span>环节与节点</span>
                 <small>{orderedStages.length} 个环节 · {totalNodes} 个节点，按顺序执行</small>
               </div>
-              <div className="wizard-type-palette">
-                {stageTypes.map(type => (
-                  <span className="wizard-type-chip" key={type}>
-                    {type}
-                    <button
-                      type="button"
-                      title="从调色板删除该类型"
-                      onClick={() => removeStageType(type)}
-                      disabled={saving}
-                    >
-                      ×
-                    </button>
-                  </span>
-                ))}
-                <span className="wizard-type-add">
-                  <input
-                    className="form-input"
-                    value={newStageType}
-                    onChange={event => setNewStageType(event.target.value)}
-                    placeholder="自定义类型，如：代码评审"
-                  />
-                  <button
-                    className="btn btn-secondary"
-                    type="button"
-                    onClick={addStageType}
-                    disabled={saving || !newStageType.trim()}
-                  >
-                    + 新建类型
-                  </button>
-                </span>
-              </div>
 
               {!workflowId ? (
                 <div className="wizard-empty-hint">填写流程名称后点击“下一步”，即可编排环节与节点。</div>
@@ -657,14 +591,14 @@ function WorkflowWizard({ scenario, workflow, initialStep = 0, onClose }) {
                           <span className="wizard-stage-order">{stageIndex + 1}</span>
                           <div className="wizard-stage-info">
                             <b>{stage.name}</b>
-                            <small>{stageTypeLabel(stage.type)}</small>
+                            {stage.description && <small>{stage.description}</small>}
                           </div>
                           <div className="wizard-row-actions">
                             <button type="button" onClick={() => moveStage(stage.id, -1)} disabled={stageIndex === 0 || saving}>↑</button>
                             <button type="button" onClick={() => moveStage(stage.id, 1)} disabled={stageIndex === orderedStages.length - 1 || saving}>↓</button>
                             <button type="button" onClick={() => {
                               setStepDraft(null)
-                              setStageDraft({ id: stage.id, name: stage.name, type: stage.type, description: stage.description || '' })
+                              setStageDraft({ id: stage.id, name: stage.name, description: stage.description || '' })
                             }}>编辑</button>
                             <button type="button" onClick={() => deleteStage(stage)} disabled={saving}>删除</button>
                           </div>
@@ -990,7 +924,6 @@ function WorkflowWizard({ scenario, workflow, initialStep = 0, onClose }) {
                     <div className="wizard-stage-assign" key={stage.id}>
                       <div className="wizard-stage-info">
                         <b>环节 {stageIndex + 1}：{stage.name}</b>
-                        <small>{stageTypeLabel(stage.type)}</small>
                       </div>
                       {[...(stage.steps || [])].sort((a, b) => a.order - b.order).map((node, nodeIndex) => {
                         const assignedIds = nodeAssetsMap[node.id] || []

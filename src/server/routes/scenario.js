@@ -84,6 +84,12 @@ router.put('/:id', async (req, res) => {
     if (Array.isArray(req.body.stageTypes)) {
       update.stageTypes = req.body.stageTypes;
     }
+    // 场景标签：去空白、去空串、去重后落库
+    if (Array.isArray(req.body.tags)) {
+      update.tags = [...new Set(
+        req.body.tags.map(tag => String(tag).trim()).filter(Boolean)
+      )];
+    }
     const scenario = await Scenario.findByIdAndUpdate(
       req.params.id,
       update,
@@ -106,7 +112,7 @@ router.delete('/:id', async (req, res) => {
     ]);
     if (childCount > 0 || workflowCount > 0) {
       return res.status(409).json({
-        error: 'Remove child scenarios and linked workflows before deleting this scenario'
+        error: '请先删除该场景的下级场景和关联的 Workflow'
       });
     }
 

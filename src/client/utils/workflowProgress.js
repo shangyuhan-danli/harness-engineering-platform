@@ -7,21 +7,6 @@ export const WIZARD_STEPS = [
   { key: 'assets', label: 'Skill / Agent 集成' }
 ]
 
-// 作业阶段类型：场景内自定义（见 Scenario.stageTypes），这里是新场景的默认调色板。
-// LEGACY_STAGE_TYPE_LABELS 仅用于兼容早期用英文 key 存储的数据。
-export const DEFAULT_STAGE_TYPES = ['Command 入口', '场景理解', '方案设计', '任务执行', '结果验证', 'Extension 构建']
-
-const LEGACY_STAGE_TYPE_LABELS = {
-  command: 'Command 入口',
-  understanding: '场景理解',
-  design: '方案设计',
-  execution: '任务执行',
-  verification: '结果验证',
-  extension: 'Extension 构建'
-}
-
-export const stageTypeLabel = (type) => LEGACY_STAGE_TYPE_LABELS[type] || type
-
 // 推导单个 Workflow 在四步链路上的完成度。
 // 返回 { steps: [{ key, label, state: 'done'|'partial'|'todo', reason }], nextStep, allDone }
 export function getWorkflowProgress(scenario, workflow) {

@@ -1,8 +1,6 @@
 // Command 预览工具：把平台上设计的 Command（slash command 契约 + Workflow 阶段编排）
 // 编译为 Claude Code 发布形态下的所见即所得预览。
 // 触发形态：Claude Code TUI 中输入 /xxx 参数…，参数整体进入 $ARGUMENTS（方案 A：位置参数）。
-import { stageTypeLabel } from './workflowProgress'
-
 export const COMMAND_NAME_PATTERN = /^\/[a-z0-9][a-z0-9-]*$/
 
 // 统一命令名：补 / 前缀、转小写
@@ -47,7 +45,7 @@ export function compileCommandBody(workflow, command) {
   } else {
     lines.push(`按以下环节顺序执行，共 ${stages.length} 个环节：`, '')
     stages.forEach((stage, stageIndex) => {
-      lines.push(`${stageIndex + 1}. **${stage.name}**（${stageTypeLabel(stage.type)}）`)
+      lines.push(`${stageIndex + 1}. **${stage.name}**`)
       if (stage.description) {
         lines.push(`   - 环节说明：${stage.description}`)
       }

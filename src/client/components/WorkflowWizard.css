@@ -266,61 +266,6 @@
   font-size: 0.8rem;
 }
 
-.wizard-type-palette {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.5rem;
-  margin-bottom: 0.9rem;
-  padding: 0.6rem 0.75rem;
-  border: 1px dashed var(--gray-200);
-  border-radius: 0.5rem;
-}
-
-.wizard-type-chip {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.35rem;
-  padding: 0.25rem 0.6rem;
-  border-radius: 9999px;
-  background: var(--gray-100);
-  border: 1px solid var(--gray-200);
-  font-size: 0.78rem;
-  color: var(--gray-700);
-}
-
-.wizard-type-chip button {
-  border: none;
-  background: none;
-  padding: 0;
-  color: var(--gray-400);
-  font-size: 0.9rem;
-  line-height: 1;
-  cursor: pointer;
-}
-
-.wizard-type-chip button:hover:not(:disabled) {
-  color: var(--danger-color);
-}
-
-.wizard-type-add {
-  display: inline-flex;
-  gap: 0.4rem;
-  align-items: center;
-}
-
-.wizard-type-add .form-input {
-  width: 12rem;
-  padding: 0.3rem 0.5rem;
-  font-size: 0.78rem;
-}
-
-.wizard-type-add .btn {
-  padding: 0.3rem 0.6rem;
-  font-size: 0.78rem;
-  white-space: nowrap;
-}
-
 .wizard-preview {
   border: 1px solid var(--gray-200);
   border-radius: 0.5rem;
